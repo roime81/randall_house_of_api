@@ -19,7 +19,7 @@ import Image from "next/image";
 import { initialTenants } from '@/lib/data';
 import type { Tenant, TenantSummary } from '@/lib/types';
 import { runGenerateTenantName, runGenerateSampleData } from '@/lib/actions';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { placeholderImages } from '@/lib/placeholder-images';
 
 const createTenantSchema = z.object({
   description: z.string().min(10, {
@@ -50,7 +50,7 @@ export default function DashboardPage() {
         id: name.toLowerCase().replace(/\s+/g, '-'),
         name,
         description: values.description,
-        logoUrl: PlaceHolderImages[Math.floor(Math.random() * PlaceHolderImages.length)].imageUrl,
+        logoUrl: placeholderImages[Math.floor(Math.random() * placeholderImages.length)].imageUrl,
         createdAt: new Date().toISOString(),
         mcpServers: [],
         apiGateway: {

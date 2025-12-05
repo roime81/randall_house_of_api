@@ -1,12 +1,12 @@
 import { Tenant } from './types';
-import { PlaceHolderImages } from './placeholder-images';
+import { placeholderImages } from './placeholder-images';
 
 export const initialTenants: Tenant[] = [
   {
     id: 'innovate-corp',
     name: 'Innovate Corp',
     description: 'A cutting-edge technology firm specializing in AI-driven solutions for enterprise customers.',
-    logoUrl: PlaceHolderImages.find(img => img.id === 'logo1')?.imageUrl || '',
+    logoUrl: placeholderImages.find(img => img.id === 'logo1')?.imageUrl || '',
     createdAt: '2023-01-15T09:30:00Z',
     mcpServers: [
       { id: 'mcps-1', name: 'Primary API Server', status: 'running', createdAt: '2023-01-20T10:00:00Z', region: 'us-central1' },
@@ -37,7 +37,7 @@ export const initialTenants: Tenant[] = [
     id: 'health-first',
     name: 'HealthFirst',
     description: 'A digital health platform providing telehealth services and patient data management.',
-    logoUrl: PlaceHolderImages.find(img => img.id === 'logo2')?.imageUrl || '',
+    logoUrl: placeholderImages.find(img => img.id === 'logo2')?.imageUrl || '',
     createdAt: '2023-04-22T14:00:00Z',
     mcpServers: [
       { id: 'mcps-4', name: 'Patient Portal API', status: 'running', createdAt: '2023-04-25T16:00:00Z', region: 'europe-west1' },
