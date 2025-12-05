@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 import { collection, query, where } from 'firebase/firestore';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { TenantSummary } from '@/lib/types';
 import { CreateTenantDialog } from '@/components/tenants/create-tenant-dialog';
 import { TenantCard } from '@/components/tenants/tenant-card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase/provider';
+import { useAuth, useUser } from '@/firebase/provider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -27,6 +27,7 @@ export default function DashboardPage() {
 
   const tenantsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
+    // This query now filters tenants by the current user's ID.
     return query(collection(firestore, 'tenants'), where('userId', '==', user.uid));
   }, [firestore, user]);
 
