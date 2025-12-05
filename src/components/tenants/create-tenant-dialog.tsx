@@ -36,7 +36,7 @@ import {
   runGenerateTenantConfig,
   runGenerateBusinessDescription,
 } from '@/lib/actions';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { addTenant } from '@/firebase/firestore/mutations';
 
 const createTenantSchema = z.object({
@@ -49,6 +49,7 @@ export function CreateTenantDialog() {
   const { toast } = useToast();
   const router = useRouter();
   const firestore = useFirestore();
+  const { user } = useUser();
 
   const [isCreating, setIsCreating] = React.useState(false);
   const [open, setOpen] = React.useState(false);
@@ -102,6 +103,15 @@ export function CreateTenantDialog() {
       });
       return;
     }
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication Error',
+        description: 'You must be signed in to create a StyleVault.',
+      });
+      return;
+    }
+
     setIsCreating(true);
     try {
       // Generate name, data, and config in parallel
@@ -122,8 +132,7 @@ export function CreateTenantDialog() {
 
       const newTenant: Omit<Tenant, 'id'> = {
         name,
-        // Since there is no user, we can use a placeholder or leave it empty
-        userId: 'anonymous', 
+        userId: user.uid,
         description: values.description,
         logoUrl: `https://picsum.photos/seed/${Math.random()}/100/100`,
         createdAt: new Date().toISOString(),

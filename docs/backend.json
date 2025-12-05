@@ -20,11 +20,18 @@
         },
         "role": {
           "type": "string",
-          "enum": ["admin", "user"],
+          "enum": [
+            "admin",
+            "user"
+          ],
           "description": "The user's role in the system."
         }
       },
-      "required": ["uid", "email", "role"]
+      "required": [
+        "uid",
+        "email",
+        "role"
+      ]
     },
     "Tenant": {
       "title": "Tenant",
@@ -74,7 +81,12 @@
           "$ref": "#/entities/DataStore"
         }
       },
-      "required": ["userId", "name", "description", "createdAt"]
+      "required": [
+        "userId",
+        "name",
+        "description",
+        "createdAt"
+      ]
     },
     "McpServer": {
       "title": "MCP Server",
@@ -88,7 +100,12 @@
         },
         "status": {
           "type": "string",
-          "enum": ["running", "stopped", "deploying", "error"]
+          "enum": [
+            "running",
+            "stopped",
+            "deploying",
+            "error"
+          ]
         },
         "createdAt": {
           "type": "string",
@@ -98,7 +115,13 @@
           "type": "string"
         }
       },
-      "required": ["id", "name", "status", "createdAt", "region"]
+      "required": [
+        "id",
+        "name",
+        "status",
+        "createdAt",
+        "region"
+      ]
     },
     "ApiGateway": {
       "title": "API Gateway",
@@ -125,7 +148,12 @@
         },
         "method": {
           "type": "string",
-          "enum": ["GET", "POST", "PUT", "DELETE"]
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE"
+          ]
         },
         "targetServer": {
           "type": "string"
@@ -144,7 +172,10 @@
         },
         "status": {
           "type": "string",
-          "enum": ["active", "inactive"]
+          "enum": [
+            "active",
+            "inactive"
+          ]
         }
       }
     },
@@ -184,7 +215,9 @@
     }
   },
   "auth": {
-    "providers": ["google.com"]
+    "providers": [
+      "google.com"
+    ]
   },
   "firestore": {
     "/users/{userId}": {
