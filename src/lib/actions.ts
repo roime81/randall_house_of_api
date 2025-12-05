@@ -3,6 +3,8 @@
 import { generateTenantName, GenerateTenantNameInput, GenerateTenantNameOutput } from '@/ai/flows/generate-tenant-name';
 import { generateSampleData, GenerateSampleDataInput, GenerateSampleDataOutput } from '@/ai/flows/generate-sample-data';
 import { summarizeTenantData, SummarizeTenantDataInput, SummarizeTenantDataOutput } from '@/ai/flows/summarize-tenant-data';
+import { generateTenantConfig, GenerateTenantConfigInput, GenerateTenantConfigOutput } from '@/ai/flows/generate-tenant-config';
+
 
 export async function runGenerateTenantName(input: GenerateTenantNameInput): Promise<GenerateTenantNameOutput> {
     try {
@@ -28,5 +30,14 @@ export async function runSummarizeTenantData(input: SummarizeTenantDataInput): P
     } catch (error) {
         console.error("Error in runSummarizeTenantData:", error);
         throw new Error("Failed to summarize tenant data.");
+    }
+}
+
+export async function runGenerateTenantConfig(input: GenerateTenantConfigInput): Promise<GenerateTenantConfigOutput> {
+    try {
+        return await generateTenantConfig(input);
+    } catch (error) {
+        console.error("Error in runGenerateTenantConfig:", error);
+        throw new Error("Failed to generate tenant configuration.");
     }
 }

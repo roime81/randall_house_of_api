@@ -18,7 +18,7 @@ import Image from "next/image";
 
 import { initialTenants } from '@/lib/data';
 import type { Tenant, TenantSummary } from '@/lib/types';
-import { runGenerateTenantName, runGenerateSampleData } from '@/lib/actions';
+import { runGenerateTenantName, runGenerateSampleData, runGenerateTenantConfig } from '@/lib/actions';
 import { placeholderImages } from '@/lib/placeholder-images';
 
 const createTenantSchema = z.object({
@@ -43,22 +43,30 @@ export default function DashboardPage() {
   async function onSubmit(values: z.infer<typeof createTenantSchema>) {
     setIsCreating(true);
     try {
-      const { name } = await runGenerateTenantName({ description: values.description });
-      const { sampleData } = await runGenerateSampleData({ tenantBusinessDescription: values.description });
-      
+      // Generate name, data, and config in parallel
+      const [nameResult, dataResult, configResult] = await Promise.all([
+        runGenerateTenantName({ description: values.description }),
+        runGenerateSampleData({ tenantBusinessDescription: values.description }),
+        runGenerateTenantConfig({ tenantBusinessDescription: values.description }),
+      ]);
+
+      const { name } = nameResult;
+      const { sampleData } = dataResult;
+      const { mcpServers, apiGatewayRoutes, eventStreams, upstreamApis } = configResult;
+
       const newTenant: Tenant = {
-        id: name.toLowerCase().replace(/\s+/g, '-'),
+        id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         name,
         description: values.description,
         logoUrl: placeholderImages[Math.floor(Math.random() * placeholderImages.length)].imageUrl,
         createdAt: new Date().toISOString(),
-        mcpServers: [],
+        mcpServers,
         apiGateway: {
-          endpoint: `https://acme.tenantflow.dev/api`,
-          routes: [],
+          endpoint: `https://${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.tenantflow.dev/api`,
+          routes: apiGatewayRoutes,
         },
-        eventStreams: [],
-        upstreamApis: [],
+        eventStreams,
+        upstreamApis,
         dataStore: {
           sampleData: JSON.parse(sampleData),
           usage: '0 GB of 10 GB used.',
