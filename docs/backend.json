@@ -61,10 +61,10 @@
           "type": "string",
           "format": "date-time"
         },
-        "mcpServers": {
+        "randallHouseServers": {
           "type": "array",
           "items": {
-            "$ref": "#/entities/McpServer"
+            "$ref": "#/entities/RandallHouseServer"
           }
         },
         "apiGateway": {
@@ -93,8 +93,8 @@
         "createdAt"
       ]
     },
-    "McpServer": {
-      "title": "MCP Server",
+    "RandallHouseServer": {
+      "title": "RandallHouse Server",
       "type": "object",
       "properties": {
         "id": {

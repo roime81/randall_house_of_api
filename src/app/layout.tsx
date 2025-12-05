@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { Logo } from '@/components/logo';
 
 export const metadata: Metadata = {
-  title: 'MCP Gateway',
+  title: 'Randall House',
   description: 'The Multi-Cloud Integration Platform for modern applications.',
 };
 
@@ -30,7 +30,7 @@ export default function RootLayout({
                   className="flex items-center gap-2 text-lg font-semibold md:text-base"
                 >
                   <Logo />
-                  <span className="sr-only">MCP Gateway</span>
+                  <span className="sr-only">Randall House</span>
                 </Link>
                 <Link
                   href="/"
@@ -58,7 +58,7 @@ export default function RootLayout({
                       className="flex items-center gap-2 text-lg font-semibold"
                     >
                       <Logo />
-                      <span className="sr-only">MCP Gateway</span>
+                      <span className="sr-only">Randall House</span>
                     </Link>
                     <Link href="/" className="hover:text-foreground/80">
                       Dashboard
