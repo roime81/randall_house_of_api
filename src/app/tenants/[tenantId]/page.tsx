@@ -1,0 +1,45 @@
+import { notFound } from 'next/navigation';
+import { initialTenants } from '@/lib/data';
+import type { Tenant } from '@/lib/types';
+import TenantHeader from '@/components/tenants/tenant-header';
+import McpServers from '@/components/tenants/mcp-servers';
+import ApiGateway from '@/components/tenants/api-gateway';
+import DataStorage from '@/components/tenants/data-storage';
+import AiSummary from '@/components/tenants/ai-summary';
+import EventHandling from '@/components/tenants/event-handling';
+import UpstreamApis from '@/components/tenants/upstream-apis';
+
+// In a real app, this would be a database call.
+async function getTenant(id: string): Promise<Tenant | undefined> {
+  // For the MVP, we'll find the tenant in our mock data.
+  // In a real app, you might need to fetch the full tenant object if the dashboard only loads summaries.
+  return initialTenants.find((tenant) => tenant.id === id);
+}
+
+export default async function TenantDetailPage({ params }: { params: { tenantId: string } }) {
+  const tenant = await getTenant(params.tenantId);
+
+  if (!tenant) {
+    notFound();
+  }
+
+  return (
+    <div className="flex flex-col gap-8">
+      <TenantHeader tenant={tenant} />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <McpServers initialServers={tenant.mcpServers} />
+          <ApiGateway gateway={tenant.apiGateway} />
+        </div>
+        <div className="lg:col-span-1 flex flex-col gap-6">
+           <AiSummary tenantId={tenant.id} dataStore={tenant.dataStore} />
+           <DataStorage data={tenant.dataStore.sampleData} />
+        </div>
+         <div className="lg:col-span-3 grid md:grid-cols-2 gap-6">
+            <EventHandling initialStreams={tenant.eventStreams} />
+            <UpstreamApis initialApis={tenant.upstreamApis} />
+        </div>
+      </div>
+    </div>
+  );
+}
