@@ -1,10 +1,12 @@
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRightLeft, Copy } from 'lucide-react';
+import { ArrowRightLeft, Copy, Eye } from 'lucide-react';
 import { Tenant } from '@/lib/types';
 import { Button } from '../ui/button';
 
 type ApiGatewayProps = {
+  hubId: string;
   gateway: Tenant['apiGateway'];
 };
 
@@ -15,14 +17,24 @@ const methodVariant: { [key: string]: 'default' | 'secondary' | 'destructive' | 
   DELETE: 'destructive',
 };
 
-export default function ApiGateway({ gateway }: ApiGatewayProps) {
+export default function ApiGateway({ hubId, gateway }: ApiGatewayProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline flex items-center gap-2">
-          <ArrowRightLeft /> Unified API Gateway
-        </CardTitle>
-        <CardDescription>A single endpoint to access all your deployed services.</CardDescription>
+        <div className="flex items-start">
+          <div className="flex-1">
+            <CardTitle className="font-headline flex items-center gap-2">
+              <ArrowRightLeft /> Unified API Gateway
+            </CardTitle>
+            <CardDescription>A single endpoint to access all your deployed services.</CardDescription>
+          </div>
+          <Button asChild size="sm" variant="outline" className="gap-1">
+            <Link href={`/hubs/${hubId}/api`}>
+              <Eye className="h-4 w-4" />
+              View API Homepage
+            </Link>
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>

@@ -36,7 +36,7 @@ import {
   runGenerateTenantConfig,
   runGenerateBusinessDescription,
 } from '@/lib/actions';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { addTenant } from '@/firebase/firestore/mutations';
 
 const createTenantSchema = z.object({
@@ -49,6 +49,7 @@ export function CreateTenantDialog() {
   const { toast } = useToast();
   const router = useRouter();
   const firestore = useFirestore();
+  const { user } = useUser();
 
   const [isCreating, setIsCreating] = React.useState(false);
   const [open, setOpen] = React.useState(false);
@@ -94,11 +95,11 @@ export function CreateTenantDialog() {
   };
 
   async function onSubmit(values: z.infer<typeof createTenantSchema>) {
-    if (!firestore) {
+    if (!firestore || !user) {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Firestore not available.',
+        description: 'You must be logged in to create a Hub.',
       });
       return;
     }
@@ -121,7 +122,8 @@ export function CreateTenantDialog() {
       const { mcpServers, apiGatewayRoutes, eventStreams, upstreamApis } =
         configResult;
 
-      const newTenant: Omit<Tenant, 'id' | 'userId'> = {
+      const newTenant: Omit<Tenant, 'id'> = {
+        userId: user.uid,
         name,
         description: values.description,
         logoUrl: `https://picsum.photos/seed/${Math.random()}/100/100`,
@@ -151,7 +153,7 @@ export function CreateTenantDialog() {
       setOpen(false);
       form.reset();
 
-      router.push(`/tenants/${newTenantId}`);
+      router.push(`/hubs/${newTenantId}`);
     } catch (error) {
       console.error(error);
       toast({

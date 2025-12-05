@@ -5,7 +5,7 @@ import { ChevronLeft, Home, PanelLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 
-export default function TenantLayout({
+export default function HubLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -19,7 +19,7 @@ export default function TenantLayout({
             className="flex items-center gap-2 text-lg font-semibold md:text-base"
           >
             <Logo />
-            <span className="sr-only">TenantFlow</span>
+            <span className="sr-only">HailingHub</span>
           </Link>
           <Link
             href="/dashboard"
@@ -47,7 +47,7 @@ export default function TenantLayout({
                 className="flex items-center gap-2 text-lg font-semibold"
               >
                 <Logo />
-                <span className="sr-only">TenantFlow</span>
+                <span className="sr-only">HailingHub</span>
               </Link>
               <Link href="/dashboard" className="hover:text-foreground/80">
                 Dashboard

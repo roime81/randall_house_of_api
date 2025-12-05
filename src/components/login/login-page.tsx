@@ -9,14 +9,48 @@ import {
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useUser } from '@/firebase';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { useAuth, useFirestore } from '@/firebase/provider';
+import { storeUserProfile } from '@/firebase/auth/user-profile';
 
 export default function LoginPage() {
   const router = useRouter();
+  const auth = useAuth();
+  const firestore = useFirestore();
+  const { user, loading } = useUser();
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   useEffect(() => {
-    router.push('/dashboard');
-  }, [router]);
+    if (!loading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, loading, router]);
+  
+  const handleSignIn = async () => {
+    if (!auth || !firestore) return;
+    setIsSigningIn(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      await storeUserProfile(firestore, result.user);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error("Error signing in with Google: ", error);
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
+
+  if (loading || user) {
+    return (
+       <div className="flex min-h-screen items-center justify-center bg-background">
+         <p>Loading...</p>
+       </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -33,7 +67,9 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-           <p className="text-center text-muted-foreground">Redirecting to dashboard...</p>
+           <Button onClick={handleSignIn} disabled={isSigningIn}>
+            {isSigningIn ? 'Signing In...' : 'Sign in with Google'}
+            </Button>
         </CardContent>
       </Card>
     </div>

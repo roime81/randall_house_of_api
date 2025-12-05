@@ -1,13 +1,17 @@
+import { FieldValue } from "firebase/firestore";
+
 export interface UserProfile {
   uid: string;
   email: string | null;
   displayName: string | null;
   role: 'admin' | 'user';
+  photoURL?: string;
+  createdAt?: FieldValue;
 }
 
 export interface Tenant {
   id: string;
-  userId?: string; // Optional since we are removing auth
+  userId: string;
   name: string;
   description: string;
   logoUrl: string;
