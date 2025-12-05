@@ -16,12 +16,9 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
         className="h-6 w-6 text-primary"
         {...props}
       >
-        <path d="M18.5 7.5c0 3.87-3.13 7-7 7s-7-3.13-7-7" />
-        <path d="M11.5 14.5v-5" />
-        <path d="M8.5 12.5L11.5 10l3 2.5" />
-        <path d="M11.5 6.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
-        <path d="M15.5 11.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5" />
-        <path d="M14 8.5c0-1.5-1.5-3-3-3s-3 1.5-3 3" />
+        <path d="M22 12c0-4-2-4-2-4H4s-2 0-2 4c0 4 6 8 8 8s8-4 8-8" />
+        <path d="M17.5 12c0-2-1-4-1-4" />
+        <path d="M6.5 12c0-2 1-4 1-4" />
       </svg>
       <span className="font-headline text-xl font-bold text-foreground">
         TenantFlow
