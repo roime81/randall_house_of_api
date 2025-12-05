@@ -1,7 +1,7 @@
 'use server';
 
 /**
- * @fileOverview This file defines a Genkit flow for generating sample telemetry data for a HailingHub project based on a description of the business.
+ * @fileOverview This file defines a Genkit flow for generating sample telemetry data for a project based on a description of the business.
  *
  * It exports:
  * - `generateSampleData`: An async function that takes a business description and returns sample data as a JSON string.
@@ -16,7 +16,7 @@ import {z} from 'zod';
 const GenerateSampleDataInputSchema = z.object({
   tenantBusinessDescription: z
     .string()
-    .describe('A description of the HailingHub project.'),
+    .describe('A description of the project.'),
 });
 
 export type GenerateSampleDataInput = z.infer<
@@ -41,7 +41,7 @@ const generateSampleDataPrompt = ai.definePrompt({
   name: 'generateSampleDataPrompt',
   input: {schema: GenerateSampleDataInputSchema},
   output: {schema: GenerateSampleDataOutputSchema},
-  prompt: `You are an expert data generator specializing in cloud telemetry and log data. Given the following description of a HailingHub project, generate a realistic set of sample log entries in JSON format.
+  prompt: `You are an expert data generator specializing in cloud telemetry and log data. Given the following project description, generate a realistic set of sample log entries in JSON format.
 
   Project Description: {{{tenantBusinessDescription}}}
 

@@ -12,7 +12,7 @@ import { Tenant } from '@/lib/types';
 
 export async function addTenant(
   firestore: Firestore,
-  tenant: Omit<Tenant, 'id' | 'userId'>
+  tenant: Omit<Tenant, 'id'>
 ) {
   const tenantsRef = collection(firestore, 'tenants');
   try {

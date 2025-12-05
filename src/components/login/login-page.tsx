@@ -60,7 +60,7 @@ export default function LoginPage() {
             <Logo />
           </div>
           <CardTitle className="font-headline text-3xl">
-            Welcome to HailingHub
+            MCP Gateway
           </CardTitle>
           <CardDescription>
             The Multi-Cloud Integration Platform for modern applications.

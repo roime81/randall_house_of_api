@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'HailingHub',
+  title: 'MCP Gateway',
   description: 'The Multi-Cloud Integration Platform for modern applications.',
 };
 

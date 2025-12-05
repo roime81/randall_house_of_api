@@ -6,7 +6,7 @@ import { Tenant } from '@/lib/types';
 import { Button } from '../ui/button';
 
 type ApiGatewayProps = {
-  hubId: string;
+  tenantId: string;
   gateway: Tenant['apiGateway'];
 };
 
@@ -17,19 +17,19 @@ const methodVariant: { [key: string]: 'default' | 'secondary' | 'destructive' | 
   DELETE: 'destructive',
 };
 
-export default function ApiGateway({ hubId, gateway }: ApiGatewayProps) {
+export default function ApiGateway({ tenantId, gateway }: ApiGatewayProps) {
   return (
     <Card>
       <CardHeader>
         <div className="flex items-start">
           <div className="flex-1">
             <CardTitle className="font-headline flex items-center gap-2">
-              <ArrowRightLeft /> Unified API Gateway
+              <ArrowRightLeft /> API Gateway
             </CardTitle>
             <CardDescription>A single endpoint to access all your deployed services.</CardDescription>
           </div>
           <Button asChild size="sm" variant="outline" className="gap-1">
-            <Link href={`/hubs/${hubId}/api`}>
+            <Link href={`/tenants/${tenantId}/api`}>
               <Eye className="h-4 w-4" />
               View API Homepage
             </Link>
@@ -38,7 +38,7 @@ export default function ApiGateway({ hubId, gateway }: ApiGatewayProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-            <h4 className="font-semibold text-sm mb-1">Hub Endpoint</h4>
+            <h4 className="font-semibold text-sm mb-1">API Endpoint</h4>
             <div className="flex items-center gap-2 rounded-md bg-muted p-2">
                 <code className="text-sm flex-1">{gateway.endpoint}</code>
                 <Button variant="ghost" size="icon" className="h-7 w-7">

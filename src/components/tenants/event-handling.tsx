@@ -18,12 +18,12 @@ export default function EventHandling({ initialStreams }: EventHandlingProps) {
             <CardHeader>
                 <div className="flex items-start">
                 <div className="flex-1">
-                    <CardTitle className="font-headline flex items-center gap-2"><Zap /> CI/CD Webhooks</CardTitle>
+                    <CardTitle className="font-headline flex items-center gap-2"><Zap /> Event Streams</CardTitle>
                     <CardDescription>Real-time event feeds from your toolchain.</CardDescription>
                 </div>
                 <Button size="sm" className="gap-1" variant="outline">
                     <PlusCircle className="h-4 w-4" />
-                    New Webhook
+                    New Stream
                 </Button>
                 </div>
             </CardHeader>
@@ -40,7 +40,7 @@ export default function EventHandling({ initialStreams }: EventHandlingProps) {
                             </div>
                         </div>
                     ))}
-                    {streams.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No webhooks configured.</p>}
+                    {streams.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No streams configured.</p>}
                 </div>
             </CardContent>
         </Card>

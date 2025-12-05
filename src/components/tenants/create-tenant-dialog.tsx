@@ -37,13 +37,34 @@ import {
   runGenerateBusinessDescription,
 } from '@/lib/actions';
 import { useFirestore, useUser } from '@/firebase';
-import { addTenant } from '@/firebase/firestore/mutations';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const createTenantSchema = z.object({
   description: z.string().min(10, {
     message: 'Description must be at least 10 characters.',
   }),
 });
+
+async function addTenant(firestore: any, tenant: any) {
+  const tenantsRef = collection(firestore, 'tenants');
+  try {
+    const docRef = await addDoc(tenantsRef, {
+      ...tenant,
+      createdAt: serverTimestamp(),
+    });
+    return docRef.id;
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+      path: tenantsRef.path,
+      operation: 'create',
+      requestResourceData: tenant,
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw permissionError;
+  }
+}
 
 export function CreateTenantDialog() {
   const { toast } = useToast();
@@ -71,7 +92,6 @@ export function CreateTenantDialog() {
         keyword: suggestionKeyword,
       });
       if (result.descriptions.length > 0) {
-        // Pick a random description from the list
         const randomDescription =
           result.descriptions[
             Math.floor(Math.random() * result.descriptions.length)
@@ -99,14 +119,13 @@ export function CreateTenantDialog() {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'You must be logged in to create a Hub.',
+        description: 'You must be logged in to create a Tenant.',
       });
       return;
     }
 
     setIsCreating(true);
     try {
-      // Generate name, data, and config in parallel
       const [nameResult, dataResult, configResult] = await Promise.all([
         runGenerateTenantName({ description: values.description }),
         runGenerateSampleData({
@@ -132,7 +151,7 @@ export function CreateTenantDialog() {
         apiGateway: {
           endpoint: `https://${name
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')}.hailinghub.dev/api`,
+            .replace(/[^a-z0-9]+/g, '-')}.mcp.dev/api`,
           routes: apiGatewayRoutes,
         },
         eventStreams,
@@ -140,26 +159,26 @@ export function CreateTenantDialog() {
         dataStore: {
           sampleData: JSON.parse(sampleData),
           usage: '0 GB of 10 GB used.',
-          activityLog: 'Hub created.',
+          activityLog: 'Tenant created.',
         },
       };
 
       const newTenantId = await addTenant(firestore, newTenant);
 
       toast({
-        title: 'Hub Created!',
-        description: `Successfully created new Hub: ${name}`,
+        title: 'Tenant Created!',
+        description: `Successfully created new tenant: ${name}`,
       });
       setOpen(false);
       form.reset();
 
-      router.push(`/hubs/${newTenantId}`);
+      router.push(`/tenants/${newTenantId}`);
     } catch (error) {
       console.error(error);
       toast({
         variant: 'destructive',
         title: 'Creation Failed',
-        description: 'Could not create the Hub. Please try again.',
+        description: 'Could not create the tenant. Please try again.',
       });
     } finally {
       setIsCreating(false);
@@ -175,7 +194,7 @@ export function CreateTenantDialog() {
         >
           <PlusCircle className="h-3.5 w-3.5" />
           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-            New Hub
+            New Tenant
           </span>
         </Button>
       </DialogTrigger>
@@ -184,11 +203,11 @@ export function CreateTenantDialog() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <DialogHeader>
               <DialogTitle className="font-headline flex items-center gap-2">
-                <Wand2 className="text-accent" /> Create New Hub with AI
+                <Wand2 className="text-accent" /> Create New Tenant with AI
               </DialogTitle>
               <DialogDescription>
-                Describe your project or business, and we'll generate a
-                multi-cloud configuration and sample data for you.
+                Describe your project, and we'll generate a multi-cloud
+                configuration and sample data.
               </DialogDescription>
             </DialogHeader>
 
@@ -254,7 +273,7 @@ export function CreateTenantDialog() {
                 {isCreating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Create Hub
+                Create Tenant
               </Button>
             </DialogFooter>
           </form>

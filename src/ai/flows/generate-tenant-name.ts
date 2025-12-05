@@ -1,9 +1,9 @@
 'use server';
 
 /**
- * @fileOverview HailingHub name generator.
+ * @fileOverview Tenant name generator.
  *
- * - generateTenantName - A function that generates a HailingHub project name.
+ * - generateTenantName - A function that generates a tenant project name.
  * - GenerateTenantNameInput - The input type for the generateTenantName function.
  * - GenerateTenantNameOutput - The return type for the generateTenantName function.
  */

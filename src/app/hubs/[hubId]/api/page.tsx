@@ -19,31 +19,31 @@ const methodVariant: { [key: string]: 'default' | 'secondary' | 'destructive' | 
   };
   
 
-export default function HubApiPage() {
+export default function TenantApiPage() {
   const params = useParams();
-  const hubId = params.hubId as string;
+  const tenantId = params.hubId as string;
   const firestore = useFirestore();
 
   const tenantRef = useMemo(() => {
-    if (!firestore || !hubId) return null;
-    return doc(firestore, 'tenants', hubId);
-  }, [firestore, hubId]);
+    if (!firestore || !tenantId) return null;
+    return doc(firestore, 'tenants', tenantId);
+  }, [firestore, tenantId]);
 
-  const { data: hub, loading } = useDoc<Tenant>(tenantRef);
+  const { data: tenant, loading } = useDoc<Tenant>(tenantRef);
 
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <p>Loading API Hub...</p>
+        <p>Loading API Details...</p>
       </div>
     );
   }
 
-  if (!hub) {
+  if (!tenant) {
     notFound();
   }
 
-  const curlExample = `curl -X GET ${hub.apiGateway.endpoint}${hub.apiGateway.routes[0]?.path || '/example'}`;
+  const curlExample = `curl -X GET ${tenant.apiGateway.endpoint}${tenant.apiGateway.routes[0]?.path || '/example'}`;
 
   return (
     <div className="bg-background min-h-screen">
@@ -51,8 +51,8 @@ export default function HubApiPage() {
         <div className="container mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <Image
-                    src={hub.logoUrl}
-                    alt={`${hub.name} Logo`}
+                    src={tenant.logoUrl}
+                    alt={`${tenant.name} Logo`}
                     width={48}
                     height={48}
                     className="rounded-lg shadow-sm"
@@ -60,15 +60,15 @@ export default function HubApiPage() {
                 />
                 <div>
                     <h1 className="font-headline text-2xl font-bold text-foreground">
-                    {hub.name}
+                    {tenant.name}
                     </h1>
                     <p className="text-sm text-muted-foreground">API Reference</p>
                 </div>
             </div>
             <Button asChild variant="outline" size="sm">
-              <Link href={`/hubs/${hubId}`} className="flex items-center gap-2">
+              <Link href={`/tenants/${tenantId}`} className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Back to Hub Details
+                Back to Tenant Details
               </Link>
             </Button>
         </div>
@@ -79,11 +79,11 @@ export default function HubApiPage() {
             <div className="md:col-span-2">
                 <section id="introduction">
                     <h2 className="font-headline text-2xl font-bold border-b pb-2 mb-4">Introduction</h2>
-                    <p className="text-muted-foreground mb-4">{hub.description}</p>
+                    <p className="text-muted-foreground mb-4">{tenant.description}</p>
                     <h3 className="font-semibold text-lg mb-2">API Endpoint</h3>
                     <div className="flex items-center gap-2 rounded-md bg-muted p-3">
-                        <code className="text-sm flex-1 font-mono">{hub.apiGateway.endpoint}</code>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigator.clipboard.writeText(hub.apiGateway.endpoint)}>
+                        <code className="text-sm flex-1 font-mono">{tenant.apiGateway.endpoint}</code>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigator.clipboard.writeText(tenant.apiGateway.endpoint)}>
                             <Copy className="h-4 w-4"/>
                         </Button>
                     </div>
@@ -92,7 +92,7 @@ export default function HubApiPage() {
                 <section id="routes" className="mt-8">
                     <h2 className="font-headline text-2xl font-bold border-b pb-2 mb-4">API Routes</h2>
                     <div className="space-y-4">
-                        {hub.apiGateway.routes.map(route => (
+                        {tenant.apiGateway.routes.map(route => (
                             <div key={route.path} className="border rounded-lg p-4">
                                 <div className="flex items-center gap-4">
                                     <Badge variant={methodVariant[route.method]} className="w-20 justify-center text-base py-1">{route.method}</Badge>

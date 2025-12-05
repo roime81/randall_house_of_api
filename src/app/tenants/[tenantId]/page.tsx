@@ -13,22 +13,22 @@ import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useMemo } from 'react';
 
-export default function HubDetailPage() {
+export default function TenantDetailPage() {
   const params = useParams();
-  const hubId = params.tenantId as string;
+  const tenantId = params.tenantId as string;
   const firestore = useFirestore();
 
   const tenantRef = useMemo(() => {
-    if (!firestore || !hubId) return null;
-    return doc(firestore, 'tenants', hubId);
-  }, [firestore, hubId]);
+    if (!firestore || !tenantId) return null;
+    return doc(firestore, 'tenants', tenantId);
+  }, [firestore, tenantId]);
 
   const { data: tenant, loading } = useDoc<Tenant>(tenantRef);
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <p>Loading Hub...</p>
+        <p>Loading Tenant...</p>
       </div>
     );
   }
@@ -43,7 +43,7 @@ export default function HubDetailPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-2 flex flex-col gap-6">
           <McpServers initialServers={tenant.mcpServers} />
-          <ApiGateway hubId={hubId} gateway={tenant.apiGateway} />
+          <ApiGateway tenantId={tenant.id} gateway={tenant.apiGateway} />
         </div>
         <div className="lg:col-span-1 flex flex-col gap-6">
           <AiSummary tenantId={tenant.id} dataStore={tenant.dataStore} />

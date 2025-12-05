@@ -22,19 +22,19 @@ export default function UpstreamApis({ initialApis }: UpstreamApisProps) {
             <CardHeader>
                 <div className="flex items-start">
                     <div className="flex-1">
-                        <CardTitle className="font-headline flex items-center gap-2"><ExternalLink /> 3rd-Party Integrations</CardTitle>
+                        <CardTitle className="font-headline flex items-center gap-2"><ExternalLink /> Upstream APIs</CardTitle>
                         <CardDescription>Connect with external services to extend functionality.</CardDescription>
                     </div>
                      <Dialog open={open} onOpenChange={setOpen}>
                         <DialogTrigger asChild>
                             <Button size="sm" className="gap-1" variant="outline">
                                 <PlusCircle className="h-4 w-4" />
-                                Add Integration
+                                Add API
                             </Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>New 3rd-Party Integration</DialogTitle>
+                                <DialogTitle>New Upstream API</DialogTitle>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -68,7 +68,7 @@ export default function UpstreamApis({ initialApis }: UpstreamApisProps) {
                             </div>
                         </div>
                     ))}
-                    {apis.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No integrations registered.</p>}
+                    {apis.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No upstream APIs registered.</p>}
                 </div>
             </CardContent>
         </Card>

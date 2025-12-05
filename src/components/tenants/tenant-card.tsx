@@ -41,7 +41,7 @@ export function TenantCard({ tenant }: TenantCardProps) {
       </CardContent>
       <CardFooter>
         <Button asChild size="sm" className="w-full">
-          <Link href={`/hubs/${tenant.id}`}>Manage Hub</Link>
+          <Link href={`/tenants/${tenant.id}`}>Manage Tenant</Link>
         </Button>
       </CardFooter>
     </Card>

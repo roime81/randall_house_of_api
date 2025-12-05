@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, PlusCircle, Server, Loader2, Cloud } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Server, Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { McpServer } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -37,7 +37,7 @@ export default function McpServers({ initialServers }: McpServersProps) {
     const newServerId = servers.length + 1;
     const newServer: McpServer = {
       id: `depl-${Date.now()}`,
-      name: `New Deployment #${newServerId}`,
+      name: `New Server #${newServerId}`,
       status: 'deploying',
       createdAt: new Date().toISOString(),
       region: ['aws-us-east-1', 'gcp-us-central1', 'azure-westeurope'][Math.floor(Math.random() * 3)],
@@ -61,7 +61,7 @@ export default function McpServers({ initialServers }: McpServersProps) {
         <div className="flex items-start">
           <div className="flex-1">
             <CardTitle className="font-headline flex items-center gap-2">
-              <Cloud /> Cloud Deployments
+              <Server /> MCP Servers
             </CardTitle>
             <CardDescription>Your services deployed across multiple cloud providers.</CardDescription>
           </div>
@@ -71,7 +71,7 @@ export default function McpServers({ initialServers }: McpServersProps) {
             ) : (
                 <PlusCircle className="h-4 w-4" />
             )}
-            New Deployment
+            New Server
           </Button>
         </div>
       </CardHeader>

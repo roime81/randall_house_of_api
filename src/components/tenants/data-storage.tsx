@@ -10,9 +10,9 @@ export default function DataStorage({ data }: DataStorageProps) {
     <Card>
       <CardHeader>
         <CardTitle className="font-headline flex items-center gap-2">
-          <Layers /> Unified Telemetry Log
+          <Layers /> Data Store
         </CardTitle>
-        <CardDescription>Sample of aggregated logs from your services.</CardDescription>
+        <CardDescription>Sample of aggregated data from your services.</CardDescription>
       </CardHeader>
       <CardContent>
         <pre className="mt-2 h-[200px] w-full overflow-auto rounded-md bg-muted p-4 text-sm">
