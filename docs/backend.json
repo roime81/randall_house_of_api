@@ -82,7 +82,6 @@
         }
       },
       "required": [
-        "userId",
         "name",
         "description",
         "createdAt"
@@ -215,9 +214,7 @@
     }
   },
   "auth": {
-    "providers": [
-      "google.com"
-    ]
+    "providers": []
   },
   "firestore": {
     "/users/{userId}": {

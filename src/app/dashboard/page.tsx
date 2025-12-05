@@ -1,37 +1,25 @@
 'use client';
 
 import * as React from 'react';
-import { collection, query, where } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { useMemo } from 'react';
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { useCollection, useFirestore } from '@/firebase';
 import type { TenantSummary } from '@/lib/types';
 import { CreateTenantDialog } from '@/components/tenants/create-tenant-dialog';
 import { TenantCard } from '@/components/tenants/tenant-card';
-import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
   const firestore = useFirestore();
-  const { user, profile, loading: userLoading } = useUser();
-  const router = useRouter();
-
-  React.useEffect(() => {
-    if (!userLoading && !user) {
-      router.push('/');
-    }
-  }, [user, userLoading, router]);
 
   const tenantsQuery = useMemo(() => {
-    if (!firestore || !profile) return null;
-    if (profile.role === 'admin') {
-      return collection(firestore, 'tenants');
-    }
-    return query(collection(firestore, 'tenants'), where('userId', '==', user?.uid));
-  }, [firestore, user, profile]);
+    if (!firestore) return null;
+    return collection(firestore, 'tenants');
+  }, [firestore]);
 
   const { data: tenants, loading: tenantsLoading } =
     useCollection<TenantSummary>(tenantsQuery);
 
-  if (userLoading || tenantsLoading) {
+  if (tenantsLoading) {
     return <p>Loading StyleVaults...</p>;
   }
 

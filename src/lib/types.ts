@@ -7,7 +7,7 @@ export interface UserProfile {
 
 export interface Tenant {
   id: string;
-  userId: string;
+  userId?: string; // Optional since we are removing auth
   name: string;
   description: string;
   logoUrl: string;

@@ -36,7 +36,7 @@ import {
   runGenerateTenantConfig,
   runGenerateBusinessDescription,
 } from '@/lib/actions';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { addTenant } from '@/firebase/firestore/mutations';
 
 const createTenantSchema = z.object({
@@ -49,7 +49,6 @@ export function CreateTenantDialog() {
   const { toast } = useToast();
   const router = useRouter();
   const firestore = useFirestore();
-  const { user } = useUser();
 
   const [isCreating, setIsCreating] = React.useState(false);
   const [open, setOpen] = React.useState(false);
@@ -103,14 +102,6 @@ export function CreateTenantDialog() {
       });
       return;
     }
-    if (!user) {
-      toast({
-        variant: 'destructive',
-        title: 'Authentication Error',
-        description: 'You must be signed in to create a StyleVault.',
-      });
-      return;
-    }
 
     setIsCreating(true);
     try {
@@ -130,9 +121,8 @@ export function CreateTenantDialog() {
       const { mcpServers, apiGatewayRoutes, eventStreams, upstreamApis } =
         configResult;
 
-      const newTenant: Omit<Tenant, 'id'> = {
+      const newTenant: Omit<Tenant, 'id' | 'userId'> = {
         name,
-        userId: user.uid,
         description: values.description,
         logoUrl: `https://picsum.photos/seed/${Math.random()}/100/100`,
         createdAt: new Date().toISOString(),
