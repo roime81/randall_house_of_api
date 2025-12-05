@@ -8,18 +8,24 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import {
   GoogleAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
+  User,
 } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { FcGoogle } from 'react-icons/fc';
+import { UserProfile } from '@/lib/types';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function LoginPage() {
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
 
   useEffect(() => {
@@ -32,6 +38,32 @@ export default function LoginPage() {
     return () => unsubscribe();
   }, [auth, router]);
 
+  const createUserProfile = async (user: User) => {
+    if (!firestore) return;
+    const userRef = doc(firestore, 'users', user.uid);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+      const newUserProfile: UserProfile = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        role:
+          user.email === 'roimepuniran@gmail.com' ? 'admin' : 'user',
+      };
+      
+      setDoc(userRef, newUserProfile)
+        .catch((serverError) => {
+            const permissionError = new FirestorePermissionError({
+                path: userRef.path,
+                operation: 'create',
+                requestResourceData: newUserProfile,
+            });
+            errorEmitter.emit('permission-error', permissionError);
+        });
+    }
+  };
+
   const handleGoogleSignIn = async () => {
     if (!auth) {
       console.error('Firebase Auth not initialized');
@@ -39,7 +71,8 @@ export default function LoginPage() {
     }
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      await createUserProfile(result.user);
       router.push('/dashboard');
     } catch (error) {
       console.error('Error signing in with Google', error);
