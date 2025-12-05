@@ -1,19 +1,72 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Home, PanelLeft } from "lucide-react"
-import Link from "next/link"
-import { Logo } from "@/components/logo"
+'use client';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Home, PanelLeft } from 'lucide-react';
+import Link from 'next/link';
+import { Logo } from '@/components/logo';
+import { useAuth, useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { FirebaseError } from 'firebase/app';
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const { user, loading, error } = useUser();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
+
+  const auth = useAuth();
+  const handleSignOut = async () => {
+    if (auth) {
+      await auth.signOut();
+      router.push('/');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Error: {error.message}
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
-      <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6 z-10">
+      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6">
         <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
           <Link
             href="/dashboard"
@@ -24,7 +77,7 @@ export default function DashboardLayout({
           </Link>
           <Link
             href="/dashboard"
-            className="text-foreground transition-colors hover:text-foreground/80 font-semibold flex items-center gap-2"
+            className="flex items-center gap-2 font-semibold text-foreground transition-colors hover:text-foreground/80"
           >
             <Home className="h-4 w-4" />
             Dashboard
@@ -64,14 +117,21 @@ export default function DashboardLayout({
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
                 <Avatar>
-                  <AvatarImage src="https://picsum.photos/seed/user/100/100" alt="@admin" />
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarImage
+                    src={user.photoURL ?? undefined}
+                    alt={user.displayName ?? 'user'}
+                  />
+                  <AvatarFallback>
+                    {user.displayName
+                      ? user.displayName.charAt(0).toUpperCase()
+                      : 'U'}
+                  </AvatarFallback>
                 </Avatar>
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{user.displayName}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/dashboard">Home</Link>
@@ -83,9 +143,7 @@ export default function DashboardLayout({
                 <Link href="#">Support</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="#">Logout</Link>
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -94,5 +152,5 @@ export default function DashboardLayout({
         {children}
       </main>
     </div>
-  )
+  );
 }

@@ -1,5 +1,13 @@
+export interface UserProfile {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  role: 'admin' | 'user';
+}
+
 export interface Tenant {
   id: string;
+  userId: string;
   name: string;
   description: string;
   logoUrl: string;
@@ -18,7 +26,10 @@ export interface Tenant {
   };
 }
 
-export type TenantSummary = Pick<Tenant, 'id' | 'name' | 'description' | 'logoUrl'>;
+export type TenantSummary = Pick<
+  Tenant,
+  'id' | 'name' | 'description' | 'logoUrl'
+>;
 
 export interface McpServer {
   id: string;
