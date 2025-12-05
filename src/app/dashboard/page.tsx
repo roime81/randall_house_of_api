@@ -28,10 +28,18 @@ const createTenantSchema = z.object({
   }),
 })
 
+const SESSION_STORAGE_KEY = 'tenantflow-tenants';
+
 export default function DashboardPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const [tenants, setTenants] = React.useState<TenantSummary[]>(initialTenants);
+  const [tenants, setTenants] = React.useState<TenantSummary[]>(() => {
+     if (typeof window === 'undefined') {
+      return initialTenants;
+    }
+    const storedTenants = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    return storedTenants ? JSON.parse(storedTenants) : initialTenants;
+  });
   const [isCreating, setIsCreating] = React.useState(false);
   const [open, setOpen] = React.useState(false);
 
@@ -41,6 +49,14 @@ export default function DashboardPage() {
       description: "",
     },
   })
+
+  // Effect to update sessionStorage whenever tenants state changes
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(tenants));
+    }
+  }, [tenants]);
+
 
   async function onSubmit(values: z.infer<typeof createTenantSchema>) {
     setIsCreating(true);

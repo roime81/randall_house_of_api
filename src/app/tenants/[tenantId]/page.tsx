@@ -11,14 +11,11 @@ import AiSummary from '@/components/tenants/ai-summary';
 import EventHandling from '@/components/tenants/event-handling';
 import UpstreamApis from '@/components/tenants/upstream-apis';
 
-function getTenant(id: string): Tenant | undefined {
-  // First, try to find the tenant in the initial mock data.
-  const tenantFromData = initialTenants.find((tenant) => tenant.id === id);
-  if (tenantFromData) {
-    return tenantFromData;
-  }
+const SESSION_STORAGE_KEY = 'tenantflow-tenants';
 
-  // If not found, check sessionStorage for a newly created tenant.
+
+function getTenant(id: string): Tenant | undefined {
+  // Try sessionStorage first
   if (typeof window !== 'undefined') {
     const storedTenant = sessionStorage.getItem(`tenant-${id}`);
     if (storedTenant) {
@@ -26,12 +23,24 @@ function getTenant(id: string): Tenant | undefined {
         return JSON.parse(storedTenant);
       } catch (e) {
         console.error("Failed to parse tenant from sessionStorage", e);
-        return undefined;
+        // Continue to check other sources
       }
+    }
+
+    const allTenants = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (allTenants) {
+        try {
+            const tenants: Tenant[] = JSON.parse(allTenants);
+            const tenant = tenants.find((t) => t.id === id);
+            if (tenant) return tenant;
+        } catch (e) {
+            console.error("Failed to parse all tenants from sessionStorage", e);
+        }
     }
   }
 
-  return undefined;
+  // Fallback to initial mock data
+  return initialTenants.find((tenant) => tenant.id === id);
 }
 
 export default function TenantDetailPage() {
