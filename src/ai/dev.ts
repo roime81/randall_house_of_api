@@ -5,3 +5,4 @@ import '@/ai/flows/summarize-tenant-data.ts';
 import '@/ai/flows/generate-tenant-name.ts';
 import '@/ai/flows/generate-sample-data.ts';
 import '@/ai/flows/generate-tenant-config.ts';
+import '@/ai/flows/generate-business-description.ts';

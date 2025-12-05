@@ -4,6 +4,7 @@ import { generateTenantName, GenerateTenantNameInput, GenerateTenantNameOutput }
 import { generateSampleData, GenerateSampleDataInput, GenerateSampleDataOutput } from '@/ai/flows/generate-sample-data';
 import { summarizeTenantData, SummarizeTenantDataInput, SummarizeTenantDataOutput } from '@/ai/flows/summarize-tenant-data';
 import { generateTenantConfig, GenerateTenantConfigInput, GenerateTenantConfigOutput } from '@/ai/flows/generate-tenant-config';
+import { generateBusinessDescription, GenerateBusinessDescriptionInput, GenerateBusinessDescriptionOutput } from '@/ai/flows/generate-business-description';
 
 
 export async function runGenerateTenantName(input: GenerateTenantNameInput): Promise<GenerateTenantNameOutput> {
@@ -39,5 +40,14 @@ export async function runGenerateTenantConfig(input: GenerateTenantConfigInput):
     } catch (error) {
         console.error("Error in runGenerateTenantConfig:", error);
         throw new Error("Failed to generate tenant configuration.");
+    }
+}
+
+export async function runGenerateBusinessDescription(input: GenerateBusinessDescriptionInput): Promise<GenerateBusinessDescriptionOutput> {
+    try {
+        return await generateBusinessDescription(input);
+    } catch (error) {
+        console.error("Error in runGenerateBusinessDescription:", error);
+        throw new Error("Failed to generate business description.");
     }
 }

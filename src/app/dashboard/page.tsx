@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { PlusCircle, Loader2, Wand2 } from 'lucide-react';
+import { PlusCircle, Loader2, Wand2, Sparkles } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -46,6 +46,7 @@ import {
   runGenerateTenantName,
   runGenerateSampleData,
   runGenerateTenantConfig,
+  runGenerateBusinessDescription,
 } from '@/lib/actions';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import { addTenant } from '@/firebase/firestore/mutations';
@@ -77,6 +78,8 @@ export default function DashboardPage() {
 
   const [isCreating, setIsCreating] = React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const [suggestionKeyword, setSuggestionKeyword] = React.useState('');
+  const [isSuggesting, setIsSuggesting] = React.useState(false);
 
   const form = useForm<z.infer<typeof createTenantSchema>>({
     resolver: zodResolver(createTenantSchema),
@@ -84,6 +87,38 @@ export default function DashboardPage() {
       description: '',
     },
   });
+
+  const handleSuggestDescription = async () => {
+    if (!suggestionKeyword) return;
+    setIsSuggesting(true);
+    try {
+      const result = await runGenerateBusinessDescription({
+        keyword: suggestionKeyword,
+      });
+      if (result.descriptions.length > 0) {
+        // Pick a random description from the list
+        const randomDescription =
+          result.descriptions[
+            Math.floor(Math.random() * result.descriptions.length)
+          ];
+        form.setValue('description', randomDescription);
+        toast({
+          title: 'Suggestion applied!',
+          description: 'A new business description has been generated.',
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: 'destructive',
+        title: 'Suggestion Failed',
+        description: 'Could not generate a description. Please try again.',
+      });
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
+
 
   async function onSubmit(values: z.infer<typeof createTenantSchema>) {
     if (!firestore || !user) {
@@ -188,23 +223,45 @@ export default function DashboardPage() {
                     </DialogDescription>
                   </DialogHeader>
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Business Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="e.g., 'An e-commerce platform for selling artisanal coffee beans'"
-                            className="resize-none"
-                            {...field}
+                  <div className="space-y-4">
+                     <div className="space-y-2">
+                        <FormLabel>Need inspiration?</FormLabel>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="e.g. 'coffee shop', 'SaaS'"
+                            value={suggestionKeyword}
+                            onChange={(e) => setSuggestionKeyword(e.target.value)}
+                            disabled={isSuggesting}
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                           <Button type="button" variant="outline" onClick={handleSuggestDescription} disabled={isSuggesting || !suggestionKeyword}>
+                              {isSuggesting ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              ) : (
+                                <Sparkles className="mr-2 h-4 w-4" />
+                              )}
+                              Suggest Ideas
+                          </Button>
+                        </div>
+                      </div>
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Business Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="e.g., 'An e-commerce platform for selling artisanal coffee beans'"
+                              className="resize-none"
+                              rows={5}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <DialogFooter>
                     <Button
