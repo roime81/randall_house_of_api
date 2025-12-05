@@ -43,6 +43,10 @@
       "description": "Represents a tenant in the multi-tenant application.",
       "type": "object",
       "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who owns the tenant."
+        },
         "name": {
           "type": "string"
         },
@@ -57,10 +61,10 @@
           "type": "string",
           "format": "date-time"
         },
-        "mcpServers": {
+        "apiServers": {
           "type": "array",
           "items": {
-            "$ref": "#/entities/McpServer"
+            "$ref": "#/entities/ApiServer"
           }
         },
         "apiGateway": {
@@ -83,13 +87,14 @@
         }
       },
       "required": [
+        "userId",
         "name",
         "description",
         "createdAt"
       ]
     },
-    "McpServer": {
-      "title": "MCP Server",
+    "ApiServer": {
+      "title": "API Server",
       "type": "object",
       "properties": {
         "id": {
@@ -215,7 +220,9 @@
     }
   },
   "auth": {
-    "providers": []
+    "providers": [
+      "google.com"
+    ]
   },
   "firestore": {
     "/users/{userId}": {

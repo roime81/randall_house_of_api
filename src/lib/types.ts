@@ -11,8 +11,7 @@ export interface UserProfile {
 
 export interface Tenant {
   id: string;
-  // userId is no longer required as we have disabled auth
-  userId?: string; 
+  userId: string; 
   name: string;
   description: string;
   logoUrl: string;

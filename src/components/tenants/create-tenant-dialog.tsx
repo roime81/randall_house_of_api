@@ -36,7 +36,7 @@ import {
   runGenerateTenantConfig,
   runGenerateBusinessDescription,
 } from '@/lib/actions';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -70,6 +70,7 @@ export function CreateTenantDialog() {
   const { toast } = useToast();
   const router = useRouter();
   const firestore = useFirestore();
+  const { user } = useUser();
 
   const [isCreating, setIsCreating] = React.useState(false);
   const [open, setOpen] = React.useState(false);
@@ -122,6 +123,14 @@ export function CreateTenantDialog() {
       });
       return;
     }
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication Error',
+        description: 'You must be signed in to create a tenant.',
+      });
+      return;
+    }
 
     setIsCreating(true);
     try {
@@ -140,7 +149,8 @@ export function CreateTenantDialog() {
       const { apiServers, apiGatewayRoutes, eventStreams, upstreamApis } =
         configResult;
 
-      const newTenant: Omit<Tenant, 'id' | 'userId'> = {
+      const newTenant: Omit<Tenant, 'id'> = {
+        userId: user.uid,
         name,
         description: values.description,
         logoUrl: `https://picsum.photos/seed/${Math.random()}/100/100`,

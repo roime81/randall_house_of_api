@@ -67,7 +67,9 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-           {/* Sign in button is currently disabled */}
+          <Button onClick={handleSignIn} disabled={isSigningIn}>
+            {isSigningIn ? 'Signing in...' : 'Sign in with Google'}
+          </Button>
         </CardContent>
       </Card>
     </div>
