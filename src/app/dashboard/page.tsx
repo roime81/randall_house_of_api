@@ -21,15 +21,21 @@ import {
 
 export default function DashboardPage() {
   const firestore = useFirestore();
-  const { user, profile } = useUser();
+  const { user, profile, isUserLoading } = useUser();
   const auth = useAuth();
   const router = useRouter();
 
   const tenantsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    // This query now filters tenants by the current user's ID.
+    if (!firestore || !user || !profile) return null;
+
+    // Admins can see all tenants. Regular users can only see their own.
+    if (profile.role === 'admin') {
+      return collection(firestore, 'tenants');
+    }
+
+    // This query now filters tenants by the current user's ID for non-admins.
     return query(collection(firestore, 'tenants'), where('userId', '==', user.uid));
-  }, [firestore, user]);
+  }, [firestore, user, profile]);
 
   const { data: tenants, loading: tenantsLoading } =
     useCollection<TenantSummary>(tenantsQuery);
@@ -40,6 +46,8 @@ export default function DashboardPage() {
         router.push('/login');
     }
   };
+  
+  const isLoading = isUserLoading || tenantsLoading;
 
   return (
     <>
@@ -70,11 +78,11 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
-      {tenantsLoading && <p>Loading tenants...</p>}
+      {isLoading && <p>Loading tenants...</p>}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {tenants?.map(tenant => <TenantCard key={tenant.id} tenant={tenant} />)}
       </div>
-      {tenants && tenants.length === 0 && !tenantsLoading && (
+      {tenants && tenants.length === 0 && !isLoading && (
         <div className="text-center py-10">
           <h3 className="text-lg font-semibold">No Tenants Found</h3>
           <p className="text-muted-foreground">Get started by creating a new tenant.</p>

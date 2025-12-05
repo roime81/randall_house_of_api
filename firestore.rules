@@ -4,19 +4,21 @@
  * Core Philosophy:
  * The primary security goal is tenant isolation. All data for a specific tenant is
  * stored under the `/tenants/{tenantId}` path. A user's access to any document
- * within this path is determined by their ownership of the tenant.
+ * within this path is determined by their ownership of the tenant, unless they are an admin.
  *
  * Data Structure:
- * Data is organized with a top-level `tenants` collection.
+ * Data is organized with a top-level `tenants` collection. User profiles are stored
+ * in a `users` collection to manage roles.
  *
  * Key Security Decisions:
  * - Default Deny: All operations are denied by default.
- * - Tenant Ownership Required: Access to a tenant document is restricted to the user who created it, identified by the `userId` field.
- * - Secure Listing: Users can only list tenants they own. A general query to list all tenants is denied to protect privacy.
+ * - Tenant Ownership/Admin Required: Access to a tenant document is restricted to the user who created it or an admin.
+ * - Secure Listing: Regular users can only list tenants they own. Admins can list all tenants.
  * - Role-Based Management: The admin role is assigned based on the user's email at the time of profile creation.
  *
  * Authorization:
- * Authorization is based on the `userId` field within each tenant document. Rules check if the `request.auth.uid` matches the `userId` of the document being accessed or queried. This is a secure and performant way to handle ownership-based permissions.
+ * Authorization is based on the `userId` field within each tenant document or the `role`
+ * field in the user's profile document (`/users/{userId}`).
  */
 rules_version = '2';
 service cloud.firestore {
@@ -30,6 +32,13 @@ service cloud.firestore {
      */
     function isSignedIn() {
       return request.auth != null;
+    }
+
+    /**
+     * Checks if the user is an admin by reading their profile.
+     */
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     /**
@@ -74,13 +83,13 @@ service cloud.firestore {
     /**
      * @description Manages tenant documents.
      * @path /tenants/{tenantId}
-     * @allow (get/update/delete) The user who owns the tenant document.
-     * @allow (list) Only allows querying for tenants owned by the current user.
+     * @allow (get/update/delete) The user who owns the tenant document or an admin.
+     * @allow (list) Allows admins to list all, or users to query for their own.
      * @allow (create) Any signed-in user, as long as they set themselves as the owner.
      */
     match /tenants/{tenantId} {
-      allow get, update, delete: if isOwner(resource);
-      allow list: if isQueryingOwnTenants();
+      allow get, update, delete: if isOwner(resource) || isAdmin();
+      allow list: if isQueryingOwnTenants() || isAdmin();
       allow create: if isCreatingOwnResource();
     }
   }
