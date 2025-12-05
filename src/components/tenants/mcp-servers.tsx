@@ -63,7 +63,7 @@ export default function McpServers({ initialServers }: McpServersProps) {
             <CardTitle className="font-headline flex items-center gap-2">
               <Server /> MCP Servers
             </CardTitle>
-            <CardDescription>Dynamically generated servers for your tenant.</CardDescription>
+            <CardDescription>Dynamically generated servers for your StyleVault.</CardDescription>
           </div>
           <Button size="sm" className="gap-1" onClick={handleDeploy} disabled={isDeploying}>
             {isDeploying ? (

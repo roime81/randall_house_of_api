@@ -25,12 +25,12 @@ export default function DashboardPage() {
   return (
     <>
       <div className="flex items-center">
-        <h1 className="font-headline text-3xl font-bold">Tenants</h1>
+        <h1 className="font-headline text-3xl font-bold">StyleVaults</h1>
         <div className="ml-auto flex items-center gap-2">
           <CreateTenantDialog />
         </div>
       </div>
-      {tenantsLoading && <p>Loading tenants...</p>}
+      {tenantsLoading && <p>Loading StyleVaults...</p>}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {tenants?.map(tenant => <TenantCard key={tenant.id} tenant={tenant} />)}
       </div>

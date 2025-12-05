@@ -139,15 +139,15 @@ export function CreateTenantDialog() {
         dataStore: {
           sampleData: JSON.parse(sampleData),
           usage: '0 GB of 10 GB used.',
-          activityLog: 'Tenant created.',
+          activityLog: 'StyleVault created.',
         },
       };
 
       const newTenantId = await addTenant(firestore, newTenant);
 
       toast({
-        title: 'Tenant Created!',
-        description: `Successfully created new tenant: ${name}`,
+        title: 'StyleVault Created!',
+        description: `Successfully created new StyleVault: ${name}`,
       });
       setOpen(false);
       form.reset();
@@ -158,7 +158,7 @@ export function CreateTenantDialog() {
       toast({
         variant: 'destructive',
         title: 'Creation Failed',
-        description: 'Could not create the tenant. Please try again.',
+        description: 'Could not create the StyleVault. Please try again.',
       });
     } finally {
       setIsCreating(false);
@@ -174,7 +174,7 @@ export function CreateTenantDialog() {
         >
           <PlusCircle className="h-3.5 w-3.5" />
           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-            New Tenant
+            New StyleVault
           </span>
         </Button>
       </DialogTrigger>
@@ -183,10 +183,10 @@ export function CreateTenantDialog() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <DialogHeader>
               <DialogTitle className="font-headline flex items-center gap-2">
-                <Wand2 className="text-accent" /> Create New Tenant with AI
+                <Wand2 className="text-accent" /> Create New StyleVault with AI
               </DialogTitle>
               <DialogDescription>
-                Describe your tenant's business or purpose, and we'll generate
+                Describe your StyleVault's business or purpose, and we'll generate
                 a name and sample data for you.
               </DialogDescription>
             </DialogHeader>
@@ -253,7 +253,7 @@ export function CreateTenantDialog() {
                 {isCreating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Create Tenant
+                Create StyleVault
               </Button>
             </DialogFooter>
           </form>

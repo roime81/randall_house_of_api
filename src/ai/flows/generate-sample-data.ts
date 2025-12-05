@@ -1,10 +1,10 @@
 'use server';
 
 /**
- * @fileOverview This file defines a Genkit flow for generating sample data for a tenant based on a description of their business.
+ * @fileOverview This file defines a Genkit flow for generating sample data for a StyleVault based on a description of their business.
  *
  * It exports:
- * - `generateSampleData`: An async function that takes a tenant business description and returns sample data as a JSON string.
+ * - `generateSampleData`: An async function that takes a StyleVault business description and returns sample data as a JSON string.
  * - `GenerateSampleDataInput`: The TypeScript type for the input to `generateSampleData`.
  * - `GenerateSampleDataOutput`: The TypeScript type for the output of `generateSampleData`.
  */
@@ -16,7 +16,7 @@ import {z} from 'genkit';
 const GenerateSampleDataInputSchema = z.object({
   tenantBusinessDescription: z
     .string()
-    .describe('A description of the tenant\u0027s business.'),
+    .describe('A description of the StyleVault\u0027s business.'),
 });
 
 export type GenerateSampleDataInput = z.infer<
@@ -28,7 +28,7 @@ const GenerateSampleDataOutputSchema = z.object({
   sampleData: z
     .string()
     .describe(
-      'Sample data for the tenant, formatted as a JSON string. The JSON should contain fields relevant to the tenant\u0027s business as described in the input.'
+      'Sample data for the StyleVault, formatted as a JSON string. The JSON should contain fields relevant to the StyleVault\u0027s business as described in the input.'
     ),
 });
 
@@ -41,9 +41,9 @@ const generateSampleDataPrompt = ai.definePrompt({
   name: 'generateSampleDataPrompt',
   input: {schema: GenerateSampleDataInputSchema},
   output: {schema: GenerateSampleDataOutputSchema},
-  prompt: `You are an expert data generator. Given the following description of a tenant's business, generate sample data for them, in JSON format.  The JSON data should be appropriate and realistic for the described business.
+  prompt: `You are an expert data generator. Given the following description of a StyleVault's business, generate sample data for them, in JSON format.  The JSON data should be appropriate and realistic for the described business.
 
-Tenant Business Description: {{{tenantBusinessDescription}}}
+StyleVault Business Description: {{{tenantBusinessDescription}}}
 
 Ensure that the output is valid JSON.
 `,

@@ -11,14 +11,14 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SummarizeTenantDataInputSchema = z.object({
-  tenantId: z.string().describe('The ID of the tenant to summarize.'),
-  dataUsage: z.string().describe('The data usage of the tenant.'),
-  activityLog: z.string().describe('The activity log of the tenant.'),
+  tenantId: z.string().describe('The ID of the StyleVault to summarize.'),
+  dataUsage: z.string().describe('The data usage of the StyleVault.'),
+  activityLog: z.string().describe('The activity log of the StyleVault.'),
 });
 export type SummarizeTenantDataInput = z.infer<typeof SummarizeTenantDataInputSchema>;
 
 const SummarizeTenantDataOutputSchema = z.object({
-  summary: z.string().describe('A summary of the tenant data usage and activity.'),
+  summary: z.string().describe('A summary of the StyleVault data usage and activity.'),
 });
 export type SummarizeTenantDataOutput = z.infer<typeof SummarizeTenantDataOutputSchema>;
 
@@ -32,7 +32,7 @@ const prompt = ai.definePrompt({
   output: {schema: SummarizeTenantDataOutputSchema},
   prompt: `You are an AI assistant helping platform administrators understand tenant data usage and activity.
 
-  Summarize the following data usage and activity log for tenant ID {{{tenantId}}}. Use concise and informative language to highlight key trends and potential issues.
+  Summarize the following data usage and activity log for StyleVault ID {{{tenantId}}}. Use concise and informative language to highlight key trends and potential issues.
 
   Data Usage: {{{dataUsage}}}
   Activity Log: {{{activityLog}}}

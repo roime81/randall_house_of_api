@@ -26,7 +26,7 @@ export default function ApiGateway({ gateway }: ApiGatewayProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-            <h4 className="font-semibold text-sm mb-1">Tenant Endpoint</h4>
+            <h4 className="font-semibold text-sm mb-1">StyleVault Endpoint</h4>
             <div className="flex items-center gap-2 rounded-md bg-muted p-2">
                 <code className="text-sm flex-1">{gateway.endpoint}</code>
                 <Button variant="ghost" size="icon" className="h-7 w-7">

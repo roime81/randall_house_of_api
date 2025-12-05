@@ -12,7 +12,7 @@ export default function DataStorage({ data }: DataStorageProps) {
         <CardTitle className="font-headline flex items-center gap-2">
           <Database /> Data Store
         </CardTitle>
-        <CardDescription>A view of your tenant's sample data in Firestore.</CardDescription>
+        <CardDescription>A view of your StyleVault's sample data in Firestore.</CardDescription>
       </CardHeader>
       <CardContent>
         <pre className="mt-2 h-[200px] w-full overflow-auto rounded-md bg-muted p-4 text-sm">

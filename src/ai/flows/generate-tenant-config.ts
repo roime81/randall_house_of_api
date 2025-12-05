@@ -1,9 +1,9 @@
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for generating a full tenant configuration based on a business description.
+ * @fileOverview This file defines a Genkit flow for generating a full StyleVault configuration based on a business description.
  *
  * It exports:
- * - `generateTenantConfig`: An async function that takes a tenant business description and returns a full configuration.
+ * - `generateTenantConfig`: An async function that takes a StyleVault business description and returns a full configuration.
  * - `GenerateTenantConfigInput`: The TypeScript type for the input.
  * - `GenerateTenantConfigOutput`: The TypeScript type for the output.
  */
@@ -43,7 +43,7 @@ const UpstreamApiSchema = z.object({
 const GenerateTenantConfigInputSchema = z.object({
   tenantBusinessDescription: z
     .string()
-    .describe('A description of the tenant\u0027s business.'),
+    .describe('A description of the StyleVault\u0027s business.'),
 });
 export type GenerateTenantConfigInput = z.infer<
   typeof GenerateTenantConfigInputSchema
@@ -63,7 +63,7 @@ const prompt = ai.definePrompt({
   name: 'generateTenantConfigPrompt',
   input: { schema: GenerateTenantConfigInputSchema },
   output: { schema: GenerateTenantConfigOutputSchema },
-  prompt: `You are an expert system architect. Based on the following business description, design a realistic initial cloud infrastructure configuration for a new tenant.
+  prompt: `You are an expert system architect. Based on the following business description, design a realistic initial cloud infrastructure configuration for a new StyleVault.
 
   Business Description: {{{tenantBusinessDescription}}}
 
