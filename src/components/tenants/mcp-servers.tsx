@@ -7,35 +7,35 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { MoreHorizontal, PlusCircle, Server, Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { RandallHouseServer } from '@/lib/types';
+import { ApiServer } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
 
-type McpServersProps = {
-  initialServers: RandallHouseServer[];
+type ApiServersProps = {
+  initialServers: ApiServer[];
 };
 
-const statusVariant: { [key in RandallHouseServer['status']]: 'default' | 'secondary' | 'destructive' } = {
+const statusVariant: { [key in ApiServer['status']]: 'default' | 'secondary' | 'destructive' } = {
   running: 'default',
   stopped: 'secondary',
   deploying: 'outline',
   error: 'destructive',
 };
 
-const statusColor: { [key in RandallHouseServer['status']]: string } = {
+const statusColor: { [key in ApiServer['status']]: string } = {
     running: 'bg-green-500',
     stopped: 'bg-gray-500',
     deploying: 'bg-yellow-500 animate-pulse',
     error: 'bg-red-500',
   };
 
-export default function McpServers({ initialServers }: McpServersProps) {
-  const [servers, setServers] = React.useState<RandallHouseServer[]>(initialServers);
+export default function ApiServers({ initialServers }: ApiServersProps) {
+  const [servers, setServers] = React.useState<ApiServer[]>(initialServers);
   const [isDeploying, setIsDeploying] = React.useState(false);
 
   const handleDeploy = () => {
     setIsDeploying(true);
     const newServerId = servers.length + 1;
-    const newServer: RandallHouseServer = {
+    const newServer: ApiServer = {
       id: `depl-${Date.now()}`,
       name: `New Server #${newServerId}`,
       status: 'deploying',
@@ -61,7 +61,7 @@ export default function McpServers({ initialServers }: McpServersProps) {
         <div className="flex items-start">
           <div className="flex-1">
             <CardTitle className="font-headline flex items-center gap-2">
-              <Server /> Randall House Servers
+              <Server /> API Servers
             </CardTitle>
             <CardDescription>Your services deployed across multiple cloud providers.</CardDescription>
           </div>

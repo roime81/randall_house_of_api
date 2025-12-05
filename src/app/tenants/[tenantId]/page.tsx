@@ -3,7 +3,7 @@ import { notFound, useParams } from 'next/navigation';
 import * as React from 'react';
 import type { Tenant } from '@/lib/types';
 import TenantHeader from '@/components/tenants/tenant-header';
-import McpServers from '@/components/tenants/mcp-servers';
+import ApiServers from '@/components/tenants/mcp-servers';
 import ApiGateway from '@/components/tenants/api-gateway';
 import DataStorage from '@/components/tenants/data-storage';
 import AiSummary from '@/components/tenants/ai-summary';
@@ -42,7 +42,7 @@ export default function TenantDetailPage() {
       <TenantHeader tenant={tenant} />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <McpServers initialServers={tenant.randallHouseServers} />
+          <ApiServers initialServers={tenant.apiServers} />
           <ApiGateway tenantId={tenant.id} gateway={tenant.apiGateway} />
         </div>
         <div className="lg:col-span-1 flex flex-col gap-6">

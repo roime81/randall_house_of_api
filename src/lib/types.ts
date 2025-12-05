@@ -17,7 +17,7 @@ export interface Tenant {
   description: string;
   logoUrl: string;
   createdAt: string;
-  randallHouseServers: RandallHouseServer[];
+  apiServers: ApiServer[];
   apiGateway: {
     endpoint: string;
     routes: ApiRoute[];
@@ -36,7 +36,7 @@ export type TenantSummary = Pick<
   'id' | 'name' | 'description' | 'logoUrl'
 >;
 
-export interface RandallHouseServer {
+export interface ApiServer {
   id: string;
   name: string;
   status: 'running' | 'stopped' | 'deploying' | 'error';

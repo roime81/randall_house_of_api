@@ -60,16 +60,14 @@ export default function LoginPage() {
             <Logo />
           </div>
           <CardTitle className="font-headline text-3xl">
-            Randall House
+            Randall's House of API
           </CardTitle>
           <CardDescription>
             The Multi-Cloud Integration Platform for modern applications.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-           <Button onClick={handleSignIn} disabled={isSigningIn}>
-            {isSigningIn ? 'Signing In...' : 'Sign in with Google'}
-            </Button>
+           {/* Sign in button is currently disabled */}
         </CardContent>
       </Card>
     </div>

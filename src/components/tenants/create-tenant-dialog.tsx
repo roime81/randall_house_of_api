@@ -137,7 +137,7 @@ export function CreateTenantDialog() {
 
       const { name } = nameResult;
       const { sampleData } = dataResult;
-      const { mcpServers: randallHouseServers, apiGatewayRoutes, eventStreams, upstreamApis } =
+      const { apiServers, apiGatewayRoutes, eventStreams, upstreamApis } =
         configResult;
 
       const newTenant: Omit<Tenant, 'id' | 'userId'> = {
@@ -145,7 +145,7 @@ export function CreateTenantDialog() {
         description: values.description,
         logoUrl: `https://picsum.photos/seed/${Math.random()}/100/100`,
         createdAt: new Date().toISOString(),
-        randallHouseServers,
+        apiServers,
         apiGateway: {
           endpoint: `https://${name
             .toLowerCase()

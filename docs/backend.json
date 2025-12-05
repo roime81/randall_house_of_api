@@ -61,10 +61,10 @@
           "type": "string",
           "format": "date-time"
         },
-        "randallHouseServers": {
+        "apiServers": {
           "type": "array",
           "items": {
-            "$ref": "#/entities/RandallHouseServer"
+            "$ref": "#/entities/ApiServer"
           }
         },
         "apiGateway": {
@@ -93,8 +93,8 @@
         "createdAt"
       ]
     },
-    "RandallHouseServer": {
-      "title": "RandallHouse Server",
+    "ApiServer": {
+      "title": "API Server",
       "type": "object",
       "properties": {
         "id": {
@@ -220,7 +220,7 @@
     }
   },
   "auth": {
-    "providers": ["google.com"]
+    "providers": []
   },
   "firestore": {
     "/users/{userId}": {

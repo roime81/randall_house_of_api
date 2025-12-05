@@ -15,10 +15,10 @@ import { z } from 'zod';
 const ApiRouteSchema = z.object({
   path: z.string().describe('The API path, e.g., /users, /rides/book.'),
   method: z.enum(['GET', 'POST', 'PUT', 'DELETE']).describe('The HTTP method.'),
-  targetServer: z.string().describe('The ID of the RandallHouse server that handles this route, e.g., "rh-auth-gcp".'),
+  targetServer: z.string().describe('The ID of the API server that handles this route, e.g., "rh-auth-gcp".'),
 });
 
-const RandallHouseServerSchema = z.object({
+const ApiServerSchema = z.object({
     id: z.string().describe("A unique server ID, e.g., 'rh-auth-gcp'."),
     name: z.string().describe('A descriptive name for the service, e.g., "Auth Service" or "Ride Booker".'),
     status: z.enum(['running', 'stopped', 'deploying', 'error']).describe('The current status of the server.'),
@@ -50,8 +50,8 @@ export type GenerateTenantConfigInput = z.infer<
 >;
 
 const GenerateTenantConfigOutputSchema = z.object({
-    mcpServers: z.array(RandallHouseServerSchema).describe('A list of 1 to 3 realistic RandallHouse servers for the business, preferably across different cloud providers (gcp, aws, azure).'),
-    apiGatewayRoutes: z.array(ApiRouteSchema).describe("A list of 2 to 4 realistic API routes for the business. The targetServer ID must exist in the 'randallHouseServers' list."),
+    apiServers: z.array(ApiServerSchema).describe('A list of 1 to 3 realistic API servers for the business, preferably across different cloud providers (gcp, aws, azure).'),
+    apiGatewayRoutes: z.array(ApiRouteSchema).describe("A list of 2 to 4 realistic API routes for the business. The targetServer ID must exist in the 'apiServers' list."),
     eventStreams: z.array(EventStreamSchema).describe('A list of 1 to 2 realistic event streams for the project (e.g., from Kafka, or a webhook from GitHub).'),
     upstreamApis: z.array(UpstreamApiSchema).describe('A list of 1 to 2 realistic 3rd-party APIs the business might use (e.g., a payment provider, mapping service).'),
 });
@@ -68,14 +68,14 @@ const prompt = ai.definePrompt({
   Project Description: {{{tenantBusinessDescription}}}
 
   Your design should be multi-cloud and demonstrate integration with common services.
-  - Generate a list of RandallHouse servers, spreading them across different cloud providers (GCP, AWS, Azure) and regions.
+  - Generate a list of API servers, spreading them across different cloud providers (GCP, AWS, Azure) and regions.
   - Create API Gateway routes that point to those servers.
   - Add event streams from services like Kafka or webhooks from GitHub.
   - Include 1 or 2 relevant third-party API integrations.
   
-  Ensure the 'targetServer' in each API route corresponds to an 'id' in the RandallHouse servers list.
+  Ensure the 'targetServer' in each API route corresponds to an 'id' in the API servers list.
   
-  Generate between 1 and 3 RandallHouse servers.
+  Generate between 1 and 3 API servers.
   Generate between 2 and 4 API routes.
   Generate between 1 and 2 event streams.
   Generate between 1 and 2 upstream APIs.
