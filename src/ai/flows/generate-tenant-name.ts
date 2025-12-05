@@ -1,9 +1,9 @@
 'use server';
 
 /**
- * @fileOverview StyleVault name generator.
+ * @fileOverview HailingHub name generator.
  *
- * - generateTenantName - A function that generates a StyleVault name.
+ * - generateTenantName - A function that generates a HailingHub project name.
  * - GenerateTenantNameInput - The input type for the generateTenantName function.
  * - GenerateTenantNameOutput - The return type for the generateTenantName function.
  */
@@ -14,12 +14,12 @@ import {z} from 'genkit';
 const GenerateTenantNameInputSchema = z.object({
   description: z
     .string()
-    .describe("A description of the StyleVault's business or purpose."),
+    .describe("A description of the project or business."),
 });
 export type GenerateTenantNameInput = z.infer<typeof GenerateTenantNameInputSchema>;
 
 const GenerateTenantNameOutputSchema = z.object({
-  name: z.string().describe('The generated name of the StyleVault.'),
+  name: z.string().describe('The generated name of the project.'),
 });
 export type GenerateTenantNameOutput = z.infer<typeof GenerateTenantNameOutputSchema>;
 
@@ -31,14 +31,14 @@ const prompt = ai.definePrompt({
   name: 'generateTenantNamePrompt',
   input: {schema: GenerateTenantNameInputSchema},
   output: {schema: GenerateTenantNameOutputSchema},
-  prompt: `You are a naming expert, skilled at generating creative and relevant names for new StyleVaults on a multi-tenant platform.
+  prompt: `You are a naming expert, skilled at generating creative and relevant names for new software projects.
 
-  Generate a unique and appealing name for a StyleVault based on the following description:
+  Generate a unique and appealing name for a project based on the following description:
 
   Description: {{{description}}}
 
-  The name should be concise, memorable, and relevant to the StyleVault's business or purpose.
-  Return only the name of the StyleVault.`,
+  The name should be concise, memorable, and relevant to the project's purpose. It should sound like a modern tech company or project name.
+  Return only the name.`,
 });
 
 const generateTenantNameFlow = ai.defineFlow(

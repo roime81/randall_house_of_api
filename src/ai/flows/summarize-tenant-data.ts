@@ -1,24 +1,24 @@
 'use server';
 /**
- * @fileOverview Summarizes tenant data and activity using AI.
+ * @fileOverview Summarizes HailingHub data and activity using AI.
  *
- * - summarizeTenantData - A function that summarizes the data usage and activity of a specific tenant.
+ * - summarizeTenantData - A function that summarizes the data usage and activity of a specific Hub.
  * - SummarizeTenantDataInput - The input type for the summarizeTenantData function.
  * - SummarizeTenantDataOutput - The return type for the summarizeTenantData function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const SummarizeTenantDataInputSchema = z.object({
-  tenantId: z.string().describe('The ID of the StyleVault to summarize.'),
-  dataUsage: z.string().describe('The data usage of the StyleVault.'),
-  activityLog: z.string().describe('The activity log of the StyleVault.'),
+  tenantId: z.string().describe('The ID of the Hub to summarize.'),
+  dataUsage: z.string().describe('The data usage of the Hub.'),
+  activityLog: z.string().describe('The activity log of the Hub.'),
 });
 export type SummarizeTenantDataInput = z.infer<typeof SummarizeTenantDataInputSchema>;
 
 const SummarizeTenantDataOutputSchema = z.object({
-  summary: z.string().describe('A summary of the StyleVault data usage and activity.'),
+  summary: z.string().describe('A summary of the Hub data usage and infrastructure activity.'),
 });
 export type SummarizeTenantDataOutput = z.infer<typeof SummarizeTenantDataOutputSchema>;
 
@@ -30,9 +30,9 @@ const prompt = ai.definePrompt({
   name: 'summarizeTenantDataPrompt',
   input: {schema: SummarizeTenantDataInputSchema},
   output: {schema: SummarizeTenantDataOutputSchema},
-  prompt: `You are an AI assistant helping platform administrators understand tenant data usage and activity.
+  prompt: `You are an AI assistant helping platform administrators understand the infrastructure status of a project.
 
-  Summarize the following data usage and activity log for StyleVault ID {{{tenantId}}}. Use concise and informative language to highlight key trends and potential issues.
+  Summarize the following data usage and activity log for HailingHub project ID {{{tenantId}}}. Use concise and informative language to highlight key trends and potential issues based on the logs and deployed services.
 
   Data Usage: {{{dataUsage}}}
   Activity Log: {{{activityLog}}}

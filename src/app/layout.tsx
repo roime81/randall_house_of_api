@@ -4,8 +4,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'TenantFlow',
-  description: 'The Multi-Tenant Platform for modern applications.',
+  title: 'HailingHub',
+  description: 'The Multi-Cloud Integration Platform for modern applications.',
 };
 
 export default function RootLayout({

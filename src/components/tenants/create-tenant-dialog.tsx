@@ -130,7 +130,7 @@ export function CreateTenantDialog() {
         apiGateway: {
           endpoint: `https://${name
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')}.tenantflow.dev/api`,
+            .replace(/[^a-z0-9]+/g, '-')}.hailinghub.dev/api`,
           routes: apiGatewayRoutes,
         },
         eventStreams,
@@ -138,15 +138,15 @@ export function CreateTenantDialog() {
         dataStore: {
           sampleData: JSON.parse(sampleData),
           usage: '0 GB of 10 GB used.',
-          activityLog: 'StyleVault created.',
+          activityLog: 'Hub created.',
         },
       };
 
       const newTenantId = await addTenant(firestore, newTenant);
 
       toast({
-        title: 'StyleVault Created!',
-        description: `Successfully created new StyleVault: ${name}`,
+        title: 'Hub Created!',
+        description: `Successfully created new Hub: ${name}`,
       });
       setOpen(false);
       form.reset();
@@ -157,7 +157,7 @@ export function CreateTenantDialog() {
       toast({
         variant: 'destructive',
         title: 'Creation Failed',
-        description: 'Could not create the StyleVault. Please try again.',
+        description: 'Could not create the Hub. Please try again.',
       });
     } finally {
       setIsCreating(false);
@@ -173,7 +173,7 @@ export function CreateTenantDialog() {
         >
           <PlusCircle className="h-3.5 w-3.5" />
           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-            New StyleVault
+            New Hub
           </span>
         </Button>
       </DialogTrigger>
@@ -182,11 +182,11 @@ export function CreateTenantDialog() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <DialogHeader>
               <DialogTitle className="font-headline flex items-center gap-2">
-                <Wand2 className="text-accent" /> Create New StyleVault with AI
+                <Wand2 className="text-accent" /> Create New Hub with AI
               </DialogTitle>
               <DialogDescription>
-                Describe your StyleVault's business or purpose, and we'll generate
-                a name and sample data for you.
+                Describe your project or business, and we'll generate a
+                multi-cloud configuration and sample data for you.
               </DialogDescription>
             </DialogHeader>
 
@@ -195,7 +195,7 @@ export function CreateTenantDialog() {
                 <FormLabel>Need inspiration?</FormLabel>
                 <div className="flex gap-2">
                   <Input
-                    placeholder="e.g. 'coffee shop', 'SaaS'"
+                    placeholder="e.g. 'ride sharing app', 'e-commerce backend'"
                     value={suggestionKeyword}
                     onChange={e => setSuggestionKeyword(e.target.value)}
                     disabled={isSuggesting}
@@ -220,10 +220,10 @@ export function CreateTenantDialog() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Business Description</FormLabel>
+                    <FormLabel>Project Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="e.g., 'An e-commerce platform for selling artisanal coffee beans'"
+                        placeholder="e.g., 'A geo-distributed ride hailing platform with real-time driver tracking and payment processing.'"
                         className="resize-none"
                         rows={5}
                         {...field}
@@ -252,7 +252,7 @@ export function CreateTenantDialog() {
                 {isCreating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Create StyleVault
+                Create Hub
               </Button>
             </DialogFooter>
           </form>

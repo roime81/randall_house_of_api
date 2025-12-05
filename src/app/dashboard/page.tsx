@@ -20,13 +20,13 @@ export default function DashboardPage() {
     useCollection<TenantSummary>(tenantsQuery);
 
   if (tenantsLoading) {
-    return <p>Loading StyleVaults...</p>;
+    return <p>Loading Hubs...</p>;
   }
 
   return (
     <>
       <div className="flex items-center">
-        <h1 className="font-headline text-3xl font-bold">StyleVaults</h1>
+        <h1 className="font-headline text-3xl font-bold">HailingHubs</h1>
         <div className="ml-auto flex items-center gap-2">
           <CreateTenantDialog />
         </div>
@@ -37,8 +37,8 @@ export default function DashboardPage() {
       </div>
        {tenants && tenants.length === 0 && (
         <div className="text-center py-10">
-          <h3 className="text-lg font-semibold">No StyleVaults Found</h3>
-          <p className="text-muted-foreground">Get started by creating a new StyleVault.</p>
+          <h3 className="text-lg font-semibold">No Hubs Found</h3>
+          <p className="text-muted-foreground">Get started by creating a new Hub.</p>
         </div>
       )}
     </>

@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, PlusCircle, Server, Loader2 } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Server, Loader2, Cloud } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { McpServer } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -36,11 +36,11 @@ export default function McpServers({ initialServers }: McpServersProps) {
     setIsDeploying(true);
     const newServerId = servers.length + 1;
     const newServer: McpServer = {
-      id: `mcps-${Date.now()}`,
-      name: `Worker Server #${newServerId}`,
+      id: `depl-${Date.now()}`,
+      name: `New Deployment #${newServerId}`,
       status: 'deploying',
       createdAt: new Date().toISOString(),
-      region: ['us-central1', 'us-east1', 'europe-west1'][Math.floor(Math.random() * 3)],
+      region: ['aws-us-east-1', 'gcp-us-central1', 'azure-westeurope'][Math.floor(Math.random() * 3)],
     };
     setServers(prev => [...prev, newServer]);
 
@@ -61,9 +61,9 @@ export default function McpServers({ initialServers }: McpServersProps) {
         <div className="flex items-start">
           <div className="flex-1">
             <CardTitle className="font-headline flex items-center gap-2">
-              <Server /> MCP Servers
+              <Cloud /> Cloud Deployments
             </CardTitle>
-            <CardDescription>Dynamically generated servers for your StyleVault.</CardDescription>
+            <CardDescription>Your services deployed across multiple cloud providers.</CardDescription>
           </div>
           <Button size="sm" className="gap-1" onClick={handleDeploy} disabled={isDeploying}>
             {isDeploying ? (
@@ -71,7 +71,7 @@ export default function McpServers({ initialServers }: McpServersProps) {
             ) : (
                 <PlusCircle className="h-4 w-4" />
             )}
-            Deploy New Server
+            New Deployment
           </Button>
         </div>
       </CardHeader>
@@ -80,8 +80,8 @@ export default function McpServers({ initialServers }: McpServersProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Status</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Region</TableHead>
+              <TableHead>Service Name</TableHead>
+              <TableHead>Provider/Region</TableHead>
               <TableHead>Created</TableHead>
               <TableHead><span className="sr-only">Actions</span></TableHead>
             </TableRow>

@@ -6,7 +6,7 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
     <div className="flex items-center gap-2">
       <Sprout className="h-10 w-10 text-primary" {...props} />
       <span className="font-headline text-3xl font-bold text-foreground">
-        TenantFlow
+        HailingHub
       </span>
     </div>
   );

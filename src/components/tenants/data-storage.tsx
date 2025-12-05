@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Database } from 'lucide-react';
+import { Layers } from 'lucide-react';
 
 type DataStorageProps = {
   data: Record<string, any>;
@@ -10,9 +10,9 @@ export default function DataStorage({ data }: DataStorageProps) {
     <Card>
       <CardHeader>
         <CardTitle className="font-headline flex items-center gap-2">
-          <Database /> Data Store
+          <Layers /> Unified Telemetry Log
         </CardTitle>
-        <CardDescription>A view of your StyleVault's sample data in Firestore.</CardDescription>
+        <CardDescription>Sample of aggregated logs from your services.</CardDescription>
       </CardHeader>
       <CardContent>
         <pre className="mt-2 h-[200px] w-full overflow-auto rounded-md bg-muted p-4 text-sm">

@@ -45,7 +45,7 @@ export default function AiSummary({ tenantId, dataStore }: AiSummaryProps) {
         <CardTitle className="font-headline flex items-center gap-2">
           <Sparkles className="text-accent" /> AI Summary
         </CardTitle>
-        <CardDescription>Generate an AI-powered summary of StyleVault activity.</CardDescription>
+        <CardDescription>Generate an AI-powered summary of your infrastructure activity.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Button onClick={handleGenerateSummary} disabled={isLoading} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">

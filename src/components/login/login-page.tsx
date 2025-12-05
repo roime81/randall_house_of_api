@@ -26,10 +26,10 @@ export default function LoginPage() {
             <Logo />
           </div>
           <CardTitle className="font-headline text-3xl">
-            Welcome to TenantFlow
+            Welcome to HailingHub
           </CardTitle>
           <CardDescription>
-            The Multi-Tenant Platform for modern applications.
+            The Multi-Cloud Integration Platform for modern applications.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">

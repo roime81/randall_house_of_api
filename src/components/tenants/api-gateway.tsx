@@ -20,13 +20,13 @@ export default function ApiGateway({ gateway }: ApiGatewayProps) {
     <Card>
       <CardHeader>
         <CardTitle className="font-headline flex items-center gap-2">
-          <ArrowRightLeft /> API Gateway
+          <ArrowRightLeft /> Unified API Gateway
         </CardTitle>
-        <CardDescription>Routes requests to the appropriate MCP server.</CardDescription>
+        <CardDescription>A single endpoint to access all your deployed services.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-            <h4 className="font-semibold text-sm mb-1">StyleVault Endpoint</h4>
+            <h4 className="font-semibold text-sm mb-1">Hub Endpoint</h4>
             <div className="flex items-center gap-2 rounded-md bg-muted p-2">
                 <code className="text-sm flex-1">{gateway.endpoint}</code>
                 <Button variant="ghost" size="icon" className="h-7 w-7">
