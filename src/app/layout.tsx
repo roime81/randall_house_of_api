@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'TenantFlow',
+  title: 'StyleVault',
   description: 'The Multi-Tenant Platform for modern applications.',
 };
 

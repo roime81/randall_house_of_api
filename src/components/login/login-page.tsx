@@ -22,7 +22,7 @@ export default function LoginPage() {
             <Logo />
           </div>
           <CardTitle className="font-headline text-3xl">
-            Welcome to TenantFlow
+            Welcome to StyleVault
           </CardTitle>
           <CardDescription>
             The Multi-Tenant Platform for modern applications.
