@@ -6,8 +6,8 @@ import {
   collection,
   serverTimestamp,
 } from 'firebase/firestore';
-import { errorEmitter } from '../error-emitter';
-import { FirestorePermissionError } from '../errors';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 import { Tenant } from '@/lib/types';
 
 export async function addTenant(
