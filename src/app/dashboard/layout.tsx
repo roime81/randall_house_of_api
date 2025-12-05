@@ -139,9 +139,6 @@ export default function DashboardLayout({
               <DropdownMenuItem asChild>
                 <Link href="#">Settings</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="#">Support</Link>
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
@@ -153,4 +150,3 @@ export default function DashboardLayout({
       </main>
     </div>
   );
-}
