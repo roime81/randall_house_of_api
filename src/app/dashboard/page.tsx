@@ -1,11 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { PlusCircle, Loader2, Wand2 } from 'lucide-react';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,6 +30,7 @@ const createTenantSchema = z.object({
 
 export default function DashboardPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [tenants, setTenants] = React.useState<TenantSummary[]>(initialTenants);
   const [isCreating, setIsCreating] = React.useState(false);
   const [open, setOpen] = React.useState(false);
@@ -75,7 +77,7 @@ export default function DashboardPage() {
       };
 
       // In a real app, you would save this to a database.
-      // Here we're just updating the client-side state.
+      // Here we're updating the client-side state and navigating.
       setTenants(prev => [...prev, newTenant]);
 
       toast({
@@ -84,6 +86,11 @@ export default function DashboardPage() {
       });
       setOpen(false);
       form.reset();
+      
+      // Store the new tenant in sessionStorage to be retrieved on the next page
+      sessionStorage.setItem(`tenant-${newTenant.id}`, JSON.stringify(newTenant));
+      router.push(`/tenants/${newTenant.id}`);
+
     } catch (error) {
       console.error(error);
       toast({

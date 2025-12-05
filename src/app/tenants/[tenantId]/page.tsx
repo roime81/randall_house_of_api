@@ -1,4 +1,6 @@
-import { notFound } from 'next/navigation';
+'use client';
+import { notFound, useParams } from 'next/navigation';
+import * as React from 'react';
 import { initialTenants } from '@/lib/data';
 import type { Tenant } from '@/lib/types';
 import TenantHeader from '@/components/tenants/tenant-header';
@@ -9,17 +11,51 @@ import AiSummary from '@/components/tenants/ai-summary';
 import EventHandling from '@/components/tenants/event-handling';
 import UpstreamApis from '@/components/tenants/upstream-apis';
 
-// In a real app, this would be a database call.
-async function getTenant(id: string): Promise<Tenant | undefined> {
-  // For the MVP, we'll find the tenant in our mock data.
-  // In a real app, you might need to fetch the full tenant object if the dashboard only loads summaries.
-  return initialTenants.find((tenant) => tenant.id === id);
+function getTenant(id: string): Tenant | undefined {
+  // First, try to find the tenant in the initial mock data.
+  const tenantFromData = initialTenants.find((tenant) => tenant.id === id);
+  if (tenantFromData) {
+    return tenantFromData;
+  }
+
+  // If not found, check sessionStorage for a newly created tenant.
+  if (typeof window !== 'undefined') {
+    const storedTenant = sessionStorage.getItem(`tenant-${id}`);
+    if (storedTenant) {
+      try {
+        return JSON.parse(storedTenant);
+      } catch (e) {
+        console.error("Failed to parse tenant from sessionStorage", e);
+        return undefined;
+      }
+    }
+  }
+
+  return undefined;
 }
 
-export default async function TenantDetailPage({ params }: { params: { tenantId: string } }) {
-  const tenant = await getTenant(params.tenantId);
+export default function TenantDetailPage() {
+  const params = useParams();
+  const tenantId = params.tenantId as string;
+  const [tenant, setTenant] = React.useState<Tenant | null | undefined>(undefined);
 
-  if (!tenant) {
+  React.useEffect(() => {
+    if (tenantId) {
+      const foundTenant = getTenant(tenantId);
+      setTenant(foundTenant);
+    }
+  }, [tenantId]);
+
+  if (tenant === undefined) {
+    // Still loading or checking storage
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p>Loading tenant...</p>
+      </div>
+    );
+  }
+
+  if (tenant === null) {
     notFound();
   }
 
