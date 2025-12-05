@@ -1,9 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Bell, Home, LineChart, Package, PanelLeft, Search, ShoppingCart, Users, Settings } from "lucide-react"
+import { Home, PanelLeft } from "lucide-react"
 import Link from "next/link"
 import { Logo } from "@/components/logo"
 
@@ -25,8 +24,9 @@ export default function DashboardLayout({
           </Link>
           <Link
             href="/dashboard"
-            className="text-foreground transition-colors hover:text-foreground/80"
+            className="text-foreground transition-colors hover:text-foreground/80 font-semibold flex items-center gap-2"
           >
+            <Home className="h-4 w-4" />
             Dashboard
           </Link>
         </nav>
@@ -73,10 +73,19 @@ export default function DashboardLayout({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard">Home</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="#">Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="#">Support</Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="#">Logout</Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
