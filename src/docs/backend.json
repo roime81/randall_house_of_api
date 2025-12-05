@@ -18,23 +18,31 @@
           "type": "string",
           "description": "The user's display name."
         },
+        "photoURL": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL of the user's profile picture."
+        },
         "role": {
           "type": "string",
-          "enum": ["admin", "user"],
+          "enum": [
+            "admin",
+            "user"
+          ],
           "description": "The user's role in the system."
         }
       },
-      "required": ["uid", "email", "role"]
+      "required": [
+        "uid",
+        "email",
+        "role"
+      ]
     },
     "Tenant": {
       "title": "Tenant",
       "description": "Represents a tenant in the multi-tenant application.",
       "type": "object",
       "properties": {
-        "userId": {
-          "type": "string",
-          "description": "The ID of the user who owns the tenant."
-        },
         "name": {
           "type": "string"
         },
@@ -74,7 +82,11 @@
           "$ref": "#/entities/DataStore"
         }
       },
-      "required": ["userId", "name", "description", "createdAt"]
+      "required": [
+        "name",
+        "description",
+        "createdAt"
+      ]
     },
     "McpServer": {
       "title": "MCP Server",
@@ -88,7 +100,12 @@
         },
         "status": {
           "type": "string",
-          "enum": ["running", "stopped", "deploying", "error"]
+          "enum": [
+            "running",
+            "stopped",
+            "deploying",
+            "error"
+          ]
         },
         "createdAt": {
           "type": "string",
@@ -98,7 +115,13 @@
           "type": "string"
         }
       },
-      "required": ["id", "name", "status", "createdAt", "region"]
+      "required": [
+        "id",
+        "name",
+        "status",
+        "createdAt",
+        "region"
+      ]
     },
     "ApiGateway": {
       "title": "API Gateway",
@@ -125,7 +148,12 @@
         },
         "method": {
           "type": "string",
-          "enum": ["GET", "POST", "PUT", "DELETE"]
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE"
+          ]
         },
         "targetServer": {
           "type": "string"
@@ -144,7 +172,10 @@
         },
         "status": {
           "type": "string",
-          "enum": ["active", "inactive"]
+          "enum": [
+            "active",
+            "inactive"
+          ]
         }
       }
     },
@@ -197,7 +228,7 @@
       "schema": {
         "$ref": "#/entities/Tenant"
       },
-      "description": "Stores information about each tenant."
+      "description": "Stores information about each tenant, owned by a specific user."
     }
   }
 }
