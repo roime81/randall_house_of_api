@@ -63,7 +63,7 @@ export default function DashboardPage() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center">
-        <h1 className="text-4xl font-bold font-headline mb-4">Welcome to MCP Gateway</h1>
+        <h1 className="text-4xl font-bold font-headline mb-4">Welcome to Randall's House of API</h1>
         <p className="text-muted-foreground mb-8">Please sign in to manage your tenants.</p>
         <Button onClick={handleSignIn} disabled={isSigningIn}>
           {isSigningIn ? 'Signing in...' : 'Sign in with Google'}
