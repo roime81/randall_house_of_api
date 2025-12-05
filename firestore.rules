@@ -1,23 +1,162 @@
+/**
+ * This ruleset enforces a strict multi-tenant security model for the TenantFlow platform.
+ *
+ * Core Philosophy:
+ * The primary security goal is tenant isolation. All data for a specific tenant is
+ * stored under the `/tenants/{tenantId}` path. A user's access to any document
+ * within this path is determined by their membership within that specific tenant.
+ *
+ * Data Structure:
+ * Data is organized hierarchically with a top-level `tenants` collection. All other
+ * data, such as MCPs, API Integrations, and LLM Requests, are stored in subcollections
+ * under their respective tenant document.
+ *
+ * Key Security Decisions:
+ * - Default Deny: All operations are denied by default.
+ * - Tenant Membership Required: All access to data within a `/tenants/{tenantId}`
+ *   path requires the authenticated user to be listed in that tenant's `members` map.
+ * - Tenant Listing Disabled: For security and privacy, it is not possible to query
+ *   or list all tenants in the database.
+ * - Role-Based Management: The tenant document itself can only be modified or
+ *   deleted by users with an 'admin' role within that tenant's `members` map.
+ *   All other resources within the tenant can be managed by any member.
+ *
+ * Denormalization for Authorization:
+ * To ensure fast and secure access control, authorization data is denormalized. Each
+ * document in the `/tenants/{tenantId}` collection is expected to contain a `members`
+ * map (e.g., `members: { 'user_uid_1': 'admin', 'user_uid_2': 'member' }`).
+ * Rules for all subcollections perform a single `get` operation on the parent tenant
+ * document to verify membership, avoiding complex and slow queries.
+ *
+ * Structural Segregation:
+ * The data structure naturally segregates each tenant's data into its own document
+ * tree, which is a highly secure and performant pattern for list operations within
+ * a specific tenant's scope.
+ */
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    // ------------------------------------------------------------------------
+    // Helper Functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    match /users/{userId} {
-      allow read: if isOwner(userId);
-      allow create: if request.auth.uid != null 
-                    && request.resource.data.uid == request.auth.uid
-                    && request.resource.data.role IN ['admin', 'user'];
+    /**
+     * Checks if the user is a member of a specific tenant.
+     * This requires a 'members' map on the tenant document.
+     * @param tenantId The ID of the tenant document to check.
+     */
+    function isTenantMember(tenantId) {
+      return isSignedIn() && get(/databases/$(database)/documents/tenants/$(tenantId)).data.members[request.auth.uid] != null;
     }
 
+    /**
+     * Checks if the user is an admin of a specific tenant.
+     * This requires a 'members' map on the tenant document with role strings.
+     * @param tenantId The ID of the tenant document to check.
+     */
+    function isTenantAdmin(tenantId) {
+      return isSignedIn() && get(/databases/$(database)/documents/tenants/$(tenantId)).data.members[request.auth.uid] == 'admin';
+    }
+    
+    /**
+     * Checks if a user is an admin of an *existing* tenant.
+     * Used for safe update and delete operations.
+     * @param tenantId The ID of the tenant document to check.
+     */
+    function isExistingTenantAdmin(tenantId) {
+      return resource != null && isTenantAdmin(tenantId);
+    }
+    
+    /**
+     * Validates that the creator of a new tenant has assigned themselves as an admin.
+     */
+    function isCreatorAnAdmin() {
+      return request.resource.data.members[request.auth.uid] == 'admin';
+    }
+
+    // ------------------------------------------------------------------------
+    // Collection Rules
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Manages tenant documents, the root of all data for an organization.
+     * @path /tenants/{tenantId}
+     * @allow (get) A user who is a member of the tenant.
+     * @allow (create) Any signed-in user, provided they add themselves as an admin.
+     * @allow (update/delete) A user who is an admin of the tenant.
+     * @deny (list) All users; prevents discovery of other tenants.
+     * @principle Enforces shared access via a 'members' map on the document.
+     */
     match /tenants/{tenantId} {
-      allow read: if isOwner(get(/databases/$(database)/documents/tenants/$(tenantId)).data.userId);
-      allow create: if request.auth.uid != null
-                    && request.resource.data.userId == request.auth.uid;
+      allow get: if isTenantMember(tenantId);
+      allow list: if false;
+      allow create: if isSignedIn() && isCreatorAnAdmin();
+      allow update: if isExistingTenantAdmin(tenantId);
+      allow delete: if isExistingTenantAdmin(tenantId);
+    }
+
+    /**
+     * @description Manages Managed Component Platform (MCP) server documents.
+     * @path /tenants/{tenantId}/mcps/{mcpId}
+     * @allow (read/write) Any user who is a member of the parent tenant.
+     * @deny A user who is not a member of the parent tenant.
+     * @principle Inherits permissions from the parent tenant document.
+     */
+    match /tenants/{tenantId}/mcps/{mcpId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.tenantId == tenantId;
+      allow update: if isTenantMember(tenantId) && resource != null && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if isTenantMember(tenantId) && resource != null;
+    }
+
+    /**
+     * @description Manages API integration documents for a specific MCP.
+     * @path /tenants/{tenantId}/mcps/{mcpId}/apiIntegrations/{apiIntegrationId}
+     * @allow (read/write) Any user who is a member of the parent tenant.
+     * @deny A user who is not a member of the parent tenant.
+     * @principle Inherits permissions from the root tenant document.
+     */
+    match /tenants/{tenantId}/mcps/{mcpId}/apiIntegrations/{apiIntegrationId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.mcpId == mcpId;
+      allow update: if isTenantMember(tenantId) && resource != null && request.resource.data.mcpId == resource.data.mcpId;
+      allow delete: if isTenantMember(tenantId) && resource != null;
+    }
+
+    /**
+     * @description Manages event subscription documents for a specific MCP.
+     * @path /tenants/{tenantId}/mcps/{mcpId}/eventSubscriptions/{eventSubscriptionId}
+     * @allow (read/write) Any user who is a member of the parent tenant.
+     * @deny A user who is not a member of the parent tenant.
+     * @principle Inherits permissions from the root tenant document.
+     */
+    match /tenants/{tenantId}/mcps/{mcpId}/eventSubscriptions/{eventSubscriptionId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.mcpId == mcpId;
+      allow update: if isTenantMember(tenantId) && resource != null && request.resource.data.mcpId == resource.data.mcpId;
+      allow delete: if isTenantMember(tenantId) && resource != null;
+    }
+
+    /**
+     * @description Manages LLM request logs for a specific MCP.
+     * @path /tenants/{tenantId}/mcps/{mcpId}/llmRequests/{llmRequestId}
+     * @allow (read/write) Any user who is a member of the parent tenant.
+     * @deny A user who is not a member of the parent tenant.
+     * @principle Inherits permissions from the root tenant document.
+     */
+    match /tenants/{tenantId}/mcps/{mcpId}/llmRequests/{llmRequestId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.mcpId == mcpId;
+      allow update: if isTenantMember(tenantId) && resource != null && request.resource.data.mcpId == resource.data.mcpId;
+      allow delete: if isTenantMember(tenantId) && resource != null;
     }
   }
 }

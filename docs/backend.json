@@ -1,239 +1,293 @@
 {
   "entities": {
-    "UserProfile": {
-      "title": "User Profile",
-      "description": "Represents a user's profile information.",
-      "type": "object",
-      "properties": {
-        "uid": {
-          "type": "string",
-          "description": "The user's unique ID from Firebase Authentication."
-        },
-        "email": {
-          "type": "string",
-          "format": "email",
-          "description": "The user's email address."
-        },
-        "displayName": {
-          "type": "string",
-          "description": "The user's display name."
-        },
-        "photoURL": {
-            "type": "string",
-            "format": "uri",
-            "description": "The URL of the user's profile picture."
-        },
-        "role": {
-          "type": "string",
-          "enum": [
-            "admin",
-            "user"
-          ],
-          "description": "The user's role in the system."
-        }
-      },
-      "required": [
-        "uid",
-        "email",
-        "role"
-      ]
-    },
     "Tenant": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Tenant",
-      "description": "Represents a tenant in the multi-tenant application.",
       "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string",
-          "description": "The ID of the user who owns the tenant."
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "logoUrl": {
-          "type": "string",
-          "format": "uri"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "apiServers": {
-          "type": "array",
-          "items": {
-            "$ref": "#/entities/ApiServer"
-          }
-        },
-        "apiGateway": {
-          "$ref": "#/entities/ApiGateway"
-        },
-        "eventStreams": {
-          "type": "array",
-          "items": {
-            "$ref": "#/entities/EventStream"
-          }
-        },
-        "upstreamApis": {
-          "type": "array",
-          "items": {
-            "$ref": "#/entities/UpstreamApi"
-          }
-        },
-        "dataStore": {
-          "$ref": "#/entities/DataStore"
-        }
-      },
-      "required": [
-        "userId",
-        "name",
-        "description",
-        "createdAt"
-      ]
-    },
-    "ApiServer": {
-      "title": "API Server",
-      "type": "object",
+      "description": "Represents a tenant (organization/user) in the multi-tenant platform.",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for the tenant."
         },
         "name": {
-          "type": "string"
-        },
-        "status": {
           "type": "string",
-          "enum": [
-            "running",
-            "stopped",
-            "deploying",
-            "error"
-          ]
+          "description": "The name of the tenant."
         },
-        "createdAt": {
+        "domain": {
           "type": "string",
+          "description": "The domain associated with the tenant."
+        },
+        "createdDate": {
+          "type": "string",
+          "description": "Date and time when the tenant was created.",
           "format": "date-time"
-        },
-        "region": {
-          "type": "string"
         }
       },
       "required": [
         "id",
         "name",
-        "status",
-        "createdAt",
-        "region"
+        "domain",
+        "createdDate"
       ]
     },
-    "ApiGateway": {
-      "title": "API Gateway",
+    "MCP": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MCP",
       "type": "object",
-      "properties": {
-        "endpoint": {
-          "type": "string",
-          "format": "uri"
-        },
-        "routes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/entities/ApiRoute"
-          }
-        }
-      }
-    },
-    "ApiRoute": {
-      "title": "API Route",
-      "type": "object",
-      "properties": {
-        "path": {
-          "type": "string"
-        },
-        "method": {
-          "type": "string",
-          "enum": [
-            "GET",
-            "POST",
-            "PUT",
-            "DELETE"
-          ]
-        },
-        "targetServer": {
-          "type": "string"
-        }
-      }
-    },
-    "EventStream": {
-      "title": "Event Stream",
-      "type": "object",
+      "description": "Represents a Managed Component Platform (MCP) server for a tenant.",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for the MCP server."
         },
-        "topic": {
-          "type": "string"
+        "tenantId": {
+          "type": "string",
+          "description": "Reference to Tenant. (Relationship: Tenant 1:N MCP)",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the MCP server."
         },
         "status": {
           "type": "string",
-          "enum": [
-            "active",
-            "inactive"
-          ]
+          "description": "The status of the MCP server (e.g., active, inactive)."
+        },
+        "apiUrl": {
+          "type": "string",
+          "description": "The API URL for the MCP server.",
+          "format": "uri"
         }
-      }
+      },
+      "required": [
+        "id",
+        "tenantId",
+        "name",
+        "status",
+        "apiUrl"
+      ]
     },
-    "UpstreamApi": {
-      "title": "Upstream API",
+    "ApiIntegration": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ApiIntegration",
       "type": "object",
+      "description": "Represents an external API integration for an MCP server.",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "Unique identifier for the API integration."
+        },
+        "mcpId": {
+          "type": "string",
+          "description": "Reference to MCP. (Relationship: MCP 1:N ApiIntegration)"
         },
         "name": {
-          "type": "string"
-        },
-        "baseUrl": {
           "type": "string",
+          "description": "The name of the API."
+        },
+        "apiUrl": {
+          "type": "string",
+          "description": "The URL of the external API.",
           "format": "uri"
         },
-        "authenticated": {
-          "type": "boolean"
+        "apiKey": {
+          "type": "string",
+          "description": "The API key for accessing the external API."
         }
-      }
+      },
+      "required": [
+        "id",
+        "mcpId",
+        "name",
+        "apiUrl",
+        "apiKey"
+      ]
     },
-    "DataStore": {
-      "title": "Data Store",
+    "EventSubscription": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EventSubscription",
       "type": "object",
+      "description": "Represents an event subscription for an MCP server to a Kafka topic.",
       "properties": {
-        "sampleData": {
-          "type": "object"
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the event subscription."
         },
-        "usage": {
-          "type": "string"
+        "mcpId": {
+          "type": "string",
+          "description": "Reference to MCP. (Relationship: MCP 1:N EventSubscription)"
         },
-        "activityLog": {
-          "type": "string"
+        "topicName": {
+          "type": "string",
+          "description": "The name of the Kafka topic."
+        },
+        "groupId": {
+          "type": "string",
+          "description": "The consumer group ID for the subscription."
         }
-      }
+      },
+      "required": [
+        "id",
+        "mcpId",
+        "topicName",
+        "groupId"
+      ]
+    },
+    "LLMRequest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LLMRequest",
+      "type": "object",
+      "description": "Represents a request sent to an LLM via the AI gateway.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LLM request."
+        },
+        "mcpId": {
+          "type": "string",
+          "description": "Reference to MCP. (Relationship: MCP 1:N LLMRequest)"
+        },
+        "requestDate": {
+          "type": "string",
+          "description": "Date and time when the request was sent.",
+          "format": "date-time"
+        },
+        "prompt": {
+          "type": "string",
+          "description": "The prompt sent to the LLM."
+        },
+        "response": {
+          "type": "string",
+          "description": "The response received from the LLM."
+        }
+      },
+      "required": [
+        "id",
+        "mcpId",
+        "requestDate",
+        "prompt",
+        "response"
+      ]
     }
   },
   "auth": {
-    "providers": []
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": {
-        "$ref": "#/entities/UserProfile"
+    "structure": [
+      {
+        "path": "/tenants/{tenantId}",
+        "definition": {
+          "entityName": "Tenant",
+          "schema": {
+            "$ref": "#/backend/entities/Tenant"
+          },
+          "description": "Represents a tenant in the system. Includes denormalized tenant information for authorization in subcollections.",
+          "params": [
+            {
+              "name": "tenantId",
+              "description": "The unique identifier for the tenant."
+            }
+          ]
+        }
       },
-      "description": "Stores user profile information."
-    },
-    "/tenants/{tenantId}": {
-      "schema": {
-        "$ref": "#/entities/Tenant"
+      {
+        "path": "/tenants/{tenantId}/mcps/{mcpId}",
+        "definition": {
+          "entityName": "MCP",
+          "schema": {
+            "$ref": "#/backend/entities/MCP"
+          },
+          "description": "Represents an MCP server for a tenant.",
+          "params": [
+            {
+              "name": "tenantId",
+              "description": "The unique identifier for the tenant."
+            },
+            {
+              "name": "mcpId",
+              "description": "The unique identifier for the MCP server."
+            }
+          ]
+        }
       },
-      "description": "Stores information about each tenant, owned by a specific user."
-    }
+      {
+        "path": "/tenants/{tenantId}/mcps/{mcpId}/apiIntegrations/{apiIntegrationId}",
+        "definition": {
+          "entityName": "ApiIntegration",
+          "schema": {
+            "$ref": "#/backend/entities/ApiIntegration"
+          },
+          "description": "Represents an API integration for an MCP server.",
+          "params": [
+            {
+              "name": "tenantId",
+              "description": "The unique identifier for the tenant."
+            },
+            {
+              "name": "mcpId",
+              "description": "The unique identifier for the MCP server."
+            },
+            {
+              "name": "apiIntegrationId",
+              "description": "The unique identifier for the API integration."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/tenants/{tenantId}/mcps/{mcpId}/eventSubscriptions/{eventSubscriptionId}",
+        "definition": {
+          "entityName": "EventSubscription",
+          "schema": {
+            "$ref": "#/backend/entities/EventSubscription"
+          },
+          "description": "Represents an event subscription for an MCP server.",
+          "params": [
+            {
+              "name": "tenantId",
+              "description": "The unique identifier for the tenant."
+            },
+            {
+              "name": "mcpId",
+              "description": "The unique identifier for the MCP server."
+            },
+            {
+              "name": "eventSubscriptionId",
+              "description": "The unique identifier for the event subscription."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/tenants/{tenantId}/mcps/{mcpId}/llmRequests/{llmRequestId}",
+        "definition": {
+          "entityName": "LLMRequest",
+          "schema": {
+            "$ref": "#/backend/entities/LLMRequest"
+          },
+          "description": "Represents a request sent to an LLM via the AI gateway.",
+          "params": [
+            {
+              "name": "tenantId",
+              "description": "The unique identifier for the tenant."
+            },
+            {
+              "name": "mcpId",
+              "description": "The unique identifier for the MCP server."
+            },
+            {
+              "name": "llmRequestId",
+              "description": "The unique identifier for the LLM request."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support a multi-tenant platform named TenantFlow, focusing on security, scalability, and debuggability. The structure adheres to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters).\n\n**Tenants:** Each tenant's data is isolated using a top-level collection `/tenants/{tenantId}`.  The `tenantId` is used as a path-based ownership mechanism for all subcollections related to that tenant.\n\n**MCP Servers:** MCP servers, API Integrations, Event Subscriptions, and LLM Requests are all stored as subcollections of the tenant. This enforces a clear hierarchy and ownership.\n\n**Authorization Independence:** Authorization data (e.g., tenant members, roles) should be stored directly within the tenant document or denormalized into the subcollections where access control is needed.  For example, if API Integrations need role-based access, a `members` map could be added to each `ApiIntegration` document, duplicating the relevant role information from the tenant level. This avoids the need for `get()` calls in security rules.\n\n**QAPs (Rules Are Not Filters):** The structure promotes secure list operations by ensuring that all documents within a collection share the same security requirements. Data with different access needs is segregated into different collections. For example, if some API Integrations are considered 'public' within a tenant, they should still reside in the `/tenants/{tenantId}/apiIntegrations` collection with appropriate access rules enforced via the `members` map or other authorization fields, or be moved to its own subcollection if the authorization needs are radically different. All authorization depends solely on `request.auth.uid`.\n\n**Error Handling:** The \"Firebase: Error (auth/unauthorized-domain)\" error indicates that the domain from which the Firebase Authentication request originated is not authorized in the Firebase Console. To fix this, the correct domain need to be added in Firebase Console > Authentication > Settings > Authorized domains section. This issue is unrelated to the Firestore data structure itself, but is a common problem when setting up Firebase Authentication with web applications."
   }
 }
