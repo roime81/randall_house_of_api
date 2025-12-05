@@ -1,0 +1,203 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile information.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID from Firebase Authentication."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "user"],
+          "description": "The user's role in the system."
+        }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Tenant": {
+      "title": "Tenant",
+      "description": "Represents a tenant in the multi-tenant application.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who owns the tenant."
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "logoUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "mcpServers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/entities/McpServer"
+          }
+        },
+        "apiGateway": {
+          "$ref": "#/entities/ApiGateway"
+        },
+        "eventStreams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/entities/EventStream"
+          }
+        },
+        "upstreamApis": {
+          "type": "array",
+          "items": {
+            "$ref": "#/entities/UpstreamApi"
+          }
+        },
+        "dataStore": {
+          "$ref": "#/entities/DataStore"
+        }
+      },
+      "required": ["userId", "name", "description", "createdAt"]
+    },
+    "McpServer": {
+      "title": "MCP Server",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["running", "stopped", "deploying", "error"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "region": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "name", "status", "createdAt", "region"]
+    },
+    "ApiGateway": {
+      "title": "API Gateway",
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "format": "uri"
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/entities/ApiRoute"
+          }
+        }
+      }
+    },
+    "ApiRoute": {
+      "title": "API Route",
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "DELETE"]
+        },
+        "targetServer": {
+          "type": "string"
+        }
+      }
+    },
+    "EventStream": {
+      "title": "Event Stream",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "topic": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive"]
+        }
+      }
+    },
+    "UpstreamApi": {
+      "title": "Upstream API",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "baseUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "authenticated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DataStore": {
+      "title": "Data Store",
+      "type": "object",
+      "properties": {
+        "sampleData": {
+          "type": "object"
+        },
+        "usage": {
+          "type": "string"
+        },
+        "activityLog": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "auth": {
+    "providers": []
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Stores user profile information."
+    },
+    "/tenants/{tenantId}": {
+      "schema": {
+        "$ref": "#/entities/Tenant"
+      },
+      "description": "Stores information about each tenant."
+    }
+  }
+}

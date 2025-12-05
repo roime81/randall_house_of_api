@@ -8,18 +8,22 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+      // This function may need to be adjusted or removed if auth is disabled.
+      return request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      // No users can be created or managed if auth is disabled.
+      allow read, write: if false;
     }
 
     match /tenants/{tenantId} {
-      allow read: if isAdmin() || resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAdmin() || resource.data.userId == request.auth.uid;
+      // Allow public read access and creation since auth is disabled.
+      // You may want to tighten these rules for production.
+      allow read, create: if true; 
+      // Updates and deletes are disallowed for now.
+      allow update, delete: if false;
     }
   }
 }

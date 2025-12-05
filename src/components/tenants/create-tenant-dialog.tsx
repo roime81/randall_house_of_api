@@ -36,7 +36,7 @@ import {
   runGenerateTenantConfig,
   runGenerateBusinessDescription,
 } from '@/lib/actions';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { addTenant } from '@/firebase/firestore/mutations';
 
 const createTenantSchema = z.object({
@@ -48,7 +48,6 @@ const createTenantSchema = z.object({
 export function CreateTenantDialog() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useUser();
   const firestore = useFirestore();
 
   const [isCreating, setIsCreating] = React.useState(false);
@@ -95,11 +94,11 @@ export function CreateTenantDialog() {
   };
 
   async function onSubmit(values: z.infer<typeof createTenantSchema>) {
-    if (!firestore || !user) {
+    if (!firestore) {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'User not authenticated.',
+        description: 'Firestore not available.',
       });
       return;
     }
@@ -123,7 +122,8 @@ export function CreateTenantDialog() {
 
       const newTenant: Omit<Tenant, 'id'> = {
         name,
-        userId: user.uid,
+        // Since there is no user, we can use a placeholder or leave it empty
+        userId: 'anonymous', 
         description: values.description,
         logoUrl: `https://picsum.photos/seed/${Math.random()}/100/100`,
         createdAt: new Date().toISOString(),

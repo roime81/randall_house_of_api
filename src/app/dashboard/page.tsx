@@ -1,28 +1,23 @@
 'use client';
 
 import * as React from 'react';
-import { collection, query, where } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { useMemo } from 'react';
 
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { useCollection, useFirestore } from '@/firebase';
 import type { TenantSummary } from '@/lib/types';
 
 import { CreateTenantDialog } from '@/components/tenants/create-tenant-dialog';
 import { TenantCard } from '@/components/tenants/tenant-card';
 
 export default function DashboardPage() {
-  const { user, profile } = useUser();
   const firestore = useFirestore();
 
   const tenantsQuery = useMemo(() => {
-    if (!firestore || !user) return null;
-    const tenantsRef = collection(firestore, 'tenants');
-    // If the user is an admin, fetch all tenants. Otherwise, only fetch their own.
-    if (profile?.role === 'admin') {
-      return tenantsRef;
-    }
-    return query(tenantsRef, where('userId', '==', user.uid));
-  }, [firestore, user, profile]);
+    if (!firestore) return null;
+    // Fetch all tenants since there is no user context.
+    return collection(firestore, 'tenants');
+  }, [firestore]);
 
   const { data: tenants, loading: tenantsLoading } =
     useCollection<TenantSummary>(tenantsQuery);

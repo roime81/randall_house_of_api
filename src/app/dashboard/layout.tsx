@@ -1,69 +1,15 @@
 'use client';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Home, PanelLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
-import { useAuth, useUser } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { FirebaseError } from 'firebase/app';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const { user, loading, error } = useUser();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/');
-    }
-  }, [user, loading, router]);
-
-  const auth = useAuth();
-  const handleSignOut = async () => {
-    if (auth) {
-      await auth.signOut();
-      router.push('/');
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Error: {error.message}
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6">
@@ -113,36 +59,9 @@ export default function DashboardLayout({
           <div className="ml-auto flex-1 sm:flex-initial">
             {/* Future search bar location */}
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
-                <Avatar>
-                  <AvatarImage
-                    src={user.photoURL ?? undefined}
-                    alt={user.displayName ?? 'user'}
-                  />
-                  <AvatarFallback>
-                    {user.displayName
-                      ? user.displayName.charAt(0).toUpperCase()
-                      : 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user.displayName}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard">Home</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="#">Settings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button asChild variant="outline">
+            <Link href="/">Home Page</Link>
+          </Button>
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -150,3 +69,4 @@ export default function DashboardLayout({
       </main>
     </div>
   );
+}
