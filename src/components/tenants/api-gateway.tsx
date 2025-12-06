@@ -29,7 +29,7 @@ export default function ApiGateway({ tenantId, gateway }: ApiGatewayProps) {
             <CardDescription>A single endpoint to access all your deployed services.</CardDescription>
           </div>
           <Button asChild size="sm" variant="outline" className="gap-1">
-            <Link href={`/tenants/${tenantId}/api`}>
+            <Link href={`/tenants/${tenantId}/reference`}>
               <Eye className="h-4 w-4" />
               View API Homepage
             </Link>
