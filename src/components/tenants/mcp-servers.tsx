@@ -3,22 +3,15 @@
 import * as React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, PlusCircle, Server, Loader2 } from 'lucide-react';
+import { MoreHorizontal, Server } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ApiServer } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
+import { CreateServerSheet } from './create-server-sheet';
 
 type ApiServersProps = {
   initialServers: ApiServer[];
-};
-
-const statusVariant: { [key in ApiServer['status']]: 'default' | 'secondary' | 'destructive' } = {
-  running: 'default',
-  stopped: 'secondary',
-  deploying: 'outline',
-  error: 'destructive',
 };
 
 const statusColor: { [key in ApiServer['status']]: string } = {
@@ -26,34 +19,31 @@ const statusColor: { [key in ApiServer['status']]: string } = {
     stopped: 'bg-gray-500',
     deploying: 'bg-yellow-500 animate-pulse',
     error: 'bg-red-500',
-  };
+};
 
 export default function ApiServers({ initialServers = [] }: ApiServersProps) {
   const [servers, setServers] = React.useState<ApiServer[]>(initialServers);
-  const [isDeploying, setIsDeploying] = React.useState(false);
 
-  const handleDeploy = () => {
-    setIsDeploying(true);
-    const newServerId = servers.length + 1;
-    const newServer: ApiServer = {
-      id: `depl-${Date.now()}`,
-      name: `New Server #${newServerId}`,
-      status: 'deploying',
+  const addServer = (newServer: Omit<ApiServer, 'id' | 'createdAt' | 'status'>) => {
+    const serverToAdd: ApiServer = {
+      ...newServer,
+      id: `srv-${Date.now()}`,
       createdAt: new Date().toISOString(),
-      region: ['aws-us-east-1', 'gcp-us-central1', 'azure-westeurope'][Math.floor(Math.random() * 3)],
+      status: 'deploying',
     };
-    setServers(prev => [...prev, newServer]);
+
+    setServers(prev => [...prev, serverToAdd]);
 
     // Simulate deployment time
     setTimeout(() => {
       setServers(prev =>
         prev.map(s =>
-          s.id === newServer.id ? { ...s, status: 'running' } : s
+          s.id === serverToAdd.id ? { ...s, status: 'running' } : s
         )
       );
-      setIsDeploying(false);
     }, 5000);
   };
+
 
   return (
     <Card>
@@ -65,14 +55,7 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
             </CardTitle>
             <CardDescription>Your services deployed across multiple cloud providers.</CardDescription>
           </div>
-          <Button size="sm" className="gap-1" onClick={handleDeploy} disabled={isDeploying}>
-            {isDeploying ? (
-                 <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-                <PlusCircle className="h-4 w-4" />
-            )}
-            New Server
-          </Button>
+          <CreateServerSheet onServerCreate={addServer} />
         </div>
       </CardHeader>
       <CardContent>
@@ -115,6 +98,13 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
                 </TableCell>
               </TableRow>
             ))}
+             {servers.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center">
+                  No servers deployed yet.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>
