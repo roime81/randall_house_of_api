@@ -5,7 +5,7 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 
 export const metadata: Metadata = {
-  title: "TenantFlow",
+  title: "Randall's House of API",
   description: 'Your unified platform for managing multi-tenant infrastructure and workflows.',
 };
 
