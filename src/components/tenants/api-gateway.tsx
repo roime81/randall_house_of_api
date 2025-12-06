@@ -41,7 +41,7 @@ export default function ApiGateway({ tenantId, gateway }: ApiGatewayProps) {
             <h4 className="font-semibold text-sm mb-1">API Endpoint</h4>
             <div className="flex items-center gap-2 rounded-md bg-muted p-2">
                 <code className="text-sm flex-1">{gateway.endpoint}</code>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigator.clipboard.writeText(gateway.endpoint)}>
                     <Copy className="h-4 w-4"/>
                 </Button>
             </div>

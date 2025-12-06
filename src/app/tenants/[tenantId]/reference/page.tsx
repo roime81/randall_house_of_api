@@ -19,7 +19,7 @@ const methodVariant: { [key: string]: 'default' | 'secondary' | 'destructive' | 
   };
   
 
-export default function TenantApiPage() {
+export default function TenantApiReferencePage() {
   const params = useParams();
   const tenantId = params.tenantId as string;
   const firestore = useFirestore();
