@@ -10,7 +10,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
 type UpstreamApisProps = {
-  initialApis: UpstreamApi[];
+  initialApis?: UpstreamApi[];
 };
 
 export default function UpstreamApis({ initialApis = [] }: UpstreamApisProps) {
