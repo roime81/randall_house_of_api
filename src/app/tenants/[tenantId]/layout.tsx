@@ -1,18 +1,42 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ChevronLeft, Home, PanelLeft } from 'lucide-react';
+import { Home, PanelLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
+import { useAuth, useUser } from '@/firebase/provider';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useRouter } from 'next/navigation';
+
 
 export default function TenantLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, profile } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    if (auth) {
+      await auth.signOut();
+      router.push('/login');
+    }
+  };
+
+
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
-      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6">
+    <div className="flex min-h-screen w-full flex-col">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 sm:px-6">
         <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
           <Link
             href="/dashboard"
@@ -55,20 +79,42 @@ export default function TenantLayout({
             </nav>
           </SheetContent>
         </Sheet>
-        <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-          <div className="ml-auto flex-1 sm:flex-initial">
-             <Button asChild variant="outline">
-                <Link href="/dashboard" className='flex items-center gap-2'>
-                    <ChevronLeft className="h-4 w-4" />
-                    Back to Dashboard
-                </Link>
-            </Button>
-          </div>
+        <div className="ml-auto flex items-center gap-4">
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="overflow-hidden rounded-full"
+                >
+                  <Avatar>
+                    <AvatarImage
+                      src={user.photoURL || ''}
+                      alt={user.displayName || ''}
+                    />
+                    <AvatarFallback>
+                      {user.displayName?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  {profile?.role === 'admin'
+                    ? `Admin: ${user.displayName}`
+                    : user.displayName}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </header>
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        {children}
-      </main>
+      <main className="flex flex-1 flex-col">{children}</main>
     </div>
   );
 }
