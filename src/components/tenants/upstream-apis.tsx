@@ -13,7 +13,7 @@ type UpstreamApisProps = {
   initialApis: UpstreamApi[];
 };
 
-export default function UpstreamApis({ initialApis }: UpstreamApisProps) {
+export default function UpstreamApis({ initialApis = [] }: UpstreamApisProps) {
     const [apis, setApis] = React.useState(initialApis);
     const [open, setOpen] = React.useState(false);
 

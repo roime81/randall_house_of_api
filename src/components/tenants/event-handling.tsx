@@ -10,7 +10,7 @@ type EventHandlingProps = {
   initialStreams: EventStream[];
 };
 
-export default function EventHandling({ initialStreams }: EventHandlingProps) {
+export default function EventHandling({ initialStreams = [] }: EventHandlingProps) {
     const [streams, setStreams] = React.useState(initialStreams);
 
     return (

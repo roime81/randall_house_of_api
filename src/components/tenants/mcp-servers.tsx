@@ -28,7 +28,7 @@ const statusColor: { [key in ApiServer['status']]: string } = {
     error: 'bg-red-500',
   };
 
-export default function ApiServers({ initialServers }: ApiServersProps) {
+export default function ApiServers({ initialServers = [] }: ApiServersProps) {
   const [servers, setServers] = React.useState<ApiServer[]>(initialServers);
   const [isDeploying, setIsDeploying] = React.useState(false);
 

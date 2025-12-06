@@ -18,6 +18,8 @@ const methodVariant: { [key: string]: 'default' | 'secondary' | 'destructive' | 
 };
 
 export default function ApiGateway({ tenantId, gateway }: ApiGatewayProps) {
+  const routes = gateway?.routes || [];
+
   return (
     <Card>
       <CardHeader>
@@ -40,8 +42,8 @@ export default function ApiGateway({ tenantId, gateway }: ApiGatewayProps) {
         <div>
             <h4 className="font-semibold text-sm mb-1">API Endpoint</h4>
             <div className="flex items-center gap-2 rounded-md bg-muted p-2">
-                <code className="text-sm flex-1">{gateway.endpoint}</code>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigator.clipboard.writeText(gateway.endpoint)}>
+                <code className="text-sm flex-1">{gateway?.endpoint || 'Not configured'}</code>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigator.clipboard.writeText(gateway?.endpoint || '')} disabled={!gateway?.endpoint}>
                     <Copy className="h-4 w-4"/>
                 </Button>
             </div>
@@ -49,7 +51,7 @@ export default function ApiGateway({ tenantId, gateway }: ApiGatewayProps) {
         <div>
             <h4 className="font-semibold text-sm mb-2">Configured Routes</h4>
             <div className="space-y-2">
-            {gateway.routes.map((route) => (
+            {routes.map((route) => (
                 <div key={route.path} className="flex items-center justify-between rounded-md border p-2">
                 <div className="flex items-center gap-2">
                     <Badge variant={methodVariant[route.method]} className="w-16 justify-center">{route.method}</Badge>
@@ -61,7 +63,7 @@ export default function ApiGateway({ tenantId, gateway }: ApiGatewayProps) {
                 </div>
                 </div>
             ))}
-            {gateway.routes.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No routes configured.</p>}
+            {routes.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No routes configured.</p>}
             </div>
         </div>
       </CardContent>
