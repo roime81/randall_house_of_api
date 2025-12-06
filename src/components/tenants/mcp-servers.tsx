@@ -22,6 +22,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ApiServer } from '@/lib/types';
@@ -52,7 +53,7 @@ const statusColor: { [key in ApiServer['status']]: string } = {
 
 export default function ApiServers({ initialServers = [] }: ApiServersProps) {
   const [servers, setServers] = React.useState<ApiServer[]>(initialServers);
-  const [serverToTerminate, setServerToTerminate] = React.useState<
+  const [serverToDelete, setServerToDelete] = React.useState<
     ApiServer | undefined
   >(undefined);
   const { toast } = useToast();
@@ -100,22 +101,22 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
     );
   };
 
-  const confirmTermination = (server: ApiServer) => {
+  const confirmDelete = (server: ApiServer) => {
     if (server.status !== 'stopped') {
       toast({
         variant: 'destructive',
-        title: 'Termination Failed',
-        description: `Server "${server.name}" must be stopped before termination.`,
+        title: 'Delete Failed',
+        description: `Server "${server.name}" must be stopped before deletion.`,
       });
       return;
     }
-    setServerToTerminate(server);
+    setServerToDelete(server);
   };
 
-  const handleTerminate = () => {
-    if (serverToTerminate) {
-      setServers(prev => prev.filter(s => s.id !== serverToTerminate.id));
-      setServerToTerminate(undefined);
+  const handleDelete = () => {
+    if (serverToDelete) {
+      setServers(prev => prev.filter(s => s.id !== serverToDelete.id));
+      setServerToDelete(undefined);
     }
   };
 
@@ -192,10 +193,23 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
                           {server.status === 'running' ? 'Stop' : 'Start'}
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          className="text-red-500"
-                          onClick={() => confirmTermination(server)}
+                          onClick={() =>
+                            handleToggleStatus(server.id, 'running')
+                          }
+                          disabled={
+                            server.status === 'stopped' ||
+                            server.status === 'deploying'
+                          }
                         >
                           Terminate
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-red-500 focus:bg-red-500/10 focus:text-red-600"
+                          onClick={() => confirmDelete(server)}
+                          disabled={server.status !== 'stopped'}
+                        >
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -214,24 +228,27 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
         </CardContent>
       </Card>
       <AlertDialog
-        open={!!serverToTerminate}
-        onOpenChange={() => setServerToTerminate(undefined)}
+        open={!!serverToDelete}
+        onOpenChange={() => setServerToDelete(undefined)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently terminate the{' '}
+              This action cannot be undone. This will permanently delete the{' '}
               <span className="font-semibold text-foreground">
-                {serverToTerminate?.name}
+                {serverToDelete?.name}
               </span>{' '}
-              server and delete its resources.
+              server and all of its data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleTerminate}>
-              Yes, terminate server
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              onClick={handleDelete}
+            >
+              Yes, delete server
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
