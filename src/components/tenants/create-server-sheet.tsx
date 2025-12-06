@@ -43,8 +43,11 @@ export function CreateServerSheet({ onServerCreate }: CreateServerSheetProps) {
   
   const [name, setName] = React.useState('');
   const [provider, setProvider] = React.useState('gcp-us-central1');
+  const [instanceSize, setInstanceSize] = React.useState('standard-2');
   const [privateEndpoint, setPrivateEndpoint] = React.useState('');
+  const [apiKey, setApiKey] = React.useState('');
   const [onPremIp, setOnPremIp] = React.useState('');
+  const [onPremPort, setOnPremPort] = React.useState('');
 
   const handleSubmit = () => {
     setIsDeploying(true);
@@ -57,11 +60,11 @@ export function CreateServerSheet({ onServerCreate }: CreateServerSheetProps) {
             break;
         case 'private':
             newServerData = { name, region: 'Private Cloud' };
-            // In a real app, you'd use the privateEndpoint
+            // In a real app, you'd use the privateEndpoint and apiKey
             break;
         case 'on-prem':
             newServerData = { name, region: 'On-Premise' };
-            // In a real app, you'd use the onPremIp
+            // In a real app, you'd use the onPremIp and onPremPort
             break;
     }
     
@@ -73,8 +76,11 @@ export function CreateServerSheet({ onServerCreate }: CreateServerSheetProps) {
         // Reset form
         setName('');
         setProvider('gcp-us-central1');
+        setInstanceSize('standard-2');
         setPrivateEndpoint('');
+        setApiKey('');
         setOnPremIp('');
+        setOnPremPort('');
 
     }, 1500);
   };
@@ -88,7 +94,7 @@ export function CreateServerSheet({ onServerCreate }: CreateServerSheetProps) {
             New Server
         </Button>
       </SheetTrigger>
-      <SheetContent className="sm:max-w-lg">
+      <SheetContent className="sm:max-w-lg overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="font-headline flex items-center gap-2">
             <Server /> Deploy New API Server
@@ -104,19 +110,19 @@ export function CreateServerSheet({ onServerCreate }: CreateServerSheetProps) {
                     <div>
                         <RadioGroupItem value="public" id="public" className="peer sr-only" />
                         <Label htmlFor="public" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                           <Cloud className="mb-2"/> Public Cloud
+                           <Cloud className="mb-2 h-5 w-5"/> Public Cloud
                         </Label>
                     </div>
                      <div>
                         <RadioGroupItem value="private" id="private" className="peer sr-only" />
                         <Label htmlFor="private" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                           <Building className="mb-2"/> Private Cloud
+                           <Building className="mb-2 h-5 w-5"/> Private Cloud
                         </Label>
                     </div>
                      <div>
                         <RadioGroupItem value="on-prem" id="on-prem" className="peer sr-only" />
                         <Label htmlFor="on-prem" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                           <HardDrive className="mb-2"/> On-Premise
+                           <HardDrive className="mb-2 h-5 w-5"/> On-Premise
                         </Label>
                     </div>
                 </RadioGroup>
@@ -124,42 +130,78 @@ export function CreateServerSheet({ onServerCreate }: CreateServerSheetProps) {
 
             <div className="space-y-2">
                 <Label htmlFor="name">Server Name</Label>
-                <Input id="name" placeholder="e.g., Auth Service" value={name} onChange={(e) => setName(e.target.value)} />
+                <Input id="name" placeholder="e.g., Auth Service, Payment Gateway" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
 
             {deploymentType === 'public' && (
-                 <div className="space-y-2">
-                    <Label htmlFor="provider">Provider & Region</Label>
-                    <Select value={provider} onValueChange={setProvider}>
-                        <SelectTrigger id="provider">
-                            <SelectValue placeholder="Select a provider" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="gcp-us-central1">Google Cloud (us-central1)</SelectItem>
-                            <SelectItem value="aws-us-east-1">Amazon Web Services (us-east-1)</SelectItem>
-                            <SelectItem value="azure-westus">Microsoft Azure (westus)</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                 <div className="space-y-4 rounded-md border p-4">
+                    <h4 className="font-semibold text-sm">Public Cloud Configuration</h4>
+                     <div className="space-y-2">
+                        <Label htmlFor="provider">Provider & Region</Label>
+                        <Select value={provider} onValueChange={setProvider}>
+                            <SelectTrigger id="provider">
+                                <SelectValue placeholder="Select a provider" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="gcp-us-central1">Google Cloud (us-central1)</SelectItem>
+                                <SelectItem value="aws-us-east-1">Amazon Web Services (us-east-1)</SelectItem>
+                                <SelectItem value="azure-westus">Microsoft Azure (westus)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="instance-size">Instance Size</Label>
+                        <Select value={instanceSize} onValueChange={setInstanceSize}>
+                            <SelectTrigger id="instance-size">
+                                <SelectValue placeholder="Select an instance size" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="standard-1">Small (1 vCPU, 2GB RAM)</SelectItem>
+                                <SelectItem value="standard-2">Medium (2 vCPU, 4GB RAM)</SelectItem>
+                                <SelectItem value="standard-4">Large (4 vCPU, 8GB RAM)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                 </div>
             )}
 
             {deploymentType === 'private' && (
-                <div className="space-y-2">
-                    <Label htmlFor="private-endpoint">Endpoint URL</Label>
-                    <Input id="private-endpoint" placeholder="https://private.cloud.internal/api" value={privateEndpoint} onChange={(e) => setPrivateEndpoint(e.target.value)} />
+                <div className="space-y-4 rounded-md border p-4">
+                    <h4 className="font-semibold text-sm">Private Cloud Configuration</h4>
+                    <div className="space-y-2">
+                        <Label htmlFor="private-endpoint">Endpoint URL</Label>
+                        <Input id="private-endpoint" placeholder="https://private.cloud.internal/api" value={privateEndpoint} onChange={(e) => setPrivateEndpoint(e.target.value)} />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="api-key">API Key (optional)</Label>
+                        <Input id="api-key" type="password" placeholder="Enter your secret API key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
+                    </div>
                 </div>
             )}
 
              {deploymentType === 'on-prem' && (
-                <div className="space-y-2">
-                    <Label htmlFor="on-prem-ip">Server IP Address</Label>
-                    <Input id="on-prem-ip" placeholder="e.g., 192.168.1.100" value={onPremIp} onChange={(e) => setOnPremIp(e.target.value)} />
-                     <Textarea placeholder="Notes about this server (optional)..." />
+                <div className="space-y-4 rounded-md border p-4">
+                     <h4 className="font-semibold text-sm">On-Premise Configuration</h4>
+                     <div className='flex gap-4'>
+                        <div className="space-y-2 flex-1">
+                            <Label htmlFor="on-prem-ip">Server IP Address</Label>
+                            <Input id="on-prem-ip" placeholder="e.g., 192.168.1.100" value={onPremIp} onChange={(e) => setOnPremIp(e.target.value)} />
+                        </div>
+                         <div className="space-y-2 w-24">
+                            <Label htmlFor="on-prem-port">Port</Label>
+                            <Input id="on-prem-port" placeholder="e.g., 8080" value={onPremPort} onChange={(e) => setOnPremPort(e.target.value)} />
+                        </div>
+                     </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="auth-token">Auth Token</Label>
+                        <Input id="auth-token" type="password" placeholder="Enter the authentication token" />
+                    </div>
+                     <Textarea placeholder="Notes about this server (OS, location, etc.)..." />
                 </div>
             )}
 
         </div>
-        <SheetFooter>
+        <SheetFooter className="pt-6">
           <SheetClose asChild>
             <Button type="button" variant="ghost" disabled={isDeploying}>Cancel</Button>
           </SheetClose>
