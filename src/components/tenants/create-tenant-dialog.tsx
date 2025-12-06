@@ -171,16 +171,16 @@ export function CreateTenantDialog() {
         },
       };
 
-      const newTenantId = await addTenant(firestore, newTenant);
+      await addTenant(firestore, newTenant);
 
       toast({
         title: 'Tenant Created!',
-        description: `Successfully created new tenant: ${name}`,
+        description: `${name} has been successfully created.`,
       });
       setOpen(false);
       form.reset();
 
-      router.push(`/tenants/${newTenantId}`);
+      router.push(`/dashboard`);
     } catch (error) {
       console.error(error);
       toast({
