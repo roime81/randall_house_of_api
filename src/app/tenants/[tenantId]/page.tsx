@@ -4,7 +4,6 @@ import * as React from 'react';
 import type { Tenant } from '@/lib/types';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { TenantPageWrapper } from '@/components/tenants/tenant-page-wrapper';
 import TenantHeader from '@/components/tenants/tenant-header';
 import ApiServers from '@/components/tenants/mcp-servers';
 import ApiGateway from '@/components/tenants/api-gateway';
@@ -38,24 +37,22 @@ export default function TenantDetailPage() {
   }
 
   return (
-    <TenantPageWrapper>
-      <div className="flex flex-col gap-8">
-        <TenantHeader tenant={tenant} />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <ApiServers initialServers={tenant.apiServers} />
-            <ApiGateway tenantId={tenant.id} gateway={tenant.apiGateway} />
-          </div>
-          <div className="lg:col-span-1 flex flex-col gap-6">
-            <AiSummary tenantId={tenant.id} dataStore={tenant.dataStore} />
-            <DataStorage data={tenant.dataStore.sampleData} />
-          </div>
-          <div className="lg:col-span-3 grid md:grid-cols-2 gap-6">
-            <EventHandling initialStreams={tenant.eventStreams} />
-            <UpstreamApis initialApis={tenant.upstreamApis} />
-          </div>
+    <div className="flex flex-col gap-8">
+      <TenantHeader tenant={tenant} />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <ApiServers initialServers={tenant.apiServers} />
+          <ApiGateway tenantId={tenant.id} gateway={tenant.apiGateway} />
+        </div>
+        <div className="lg:col-span-1 flex flex-col gap-6">
+          <AiSummary tenantId={tenant.id} dataStore={tenant.dataStore} />
+          <DataStorage data={tenant.dataStore.sampleData} />
+        </div>
+        <div className="lg:col-span-3 grid md:grid-cols-2 gap-6">
+          <EventHandling initialStreams={tenant.eventStreams} />
+          <UpstreamApis initialApis={tenant.upstreamApis} />
         </div>
       </div>
-    </TenantPageWrapper>
+    </div>
   );
 }
