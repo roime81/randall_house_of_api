@@ -113,7 +113,7 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
     setServerToDelete(server);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (serverToDelete: ApiServer) => {
     if (serverToDelete) {
       setServers(prev => prev.filter(s => s.id !== serverToDelete.id));
       setServerToDelete(undefined);
@@ -246,7 +246,7 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive hover:bg-destructive/90"
-              onClick={handleDelete}
+              onClick={() => handleDelete(serverToDelete!)}
             >
               Yes, delete server
             </AlertDialogAction>
