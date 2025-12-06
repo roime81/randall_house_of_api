@@ -37,9 +37,8 @@ import {
   runGenerateBusinessDescription,
 } from '@/lib/actions';
 import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { addTenant } from '@/firebase/firestore/mutations';
+
 
 const createTenantSchema = z.object({
   description: z.string().min(10, {
@@ -47,24 +46,6 @@ const createTenantSchema = z.object({
   }),
 });
 
-async function addTenant(firestore: any, tenant: any) {
-  const tenantsRef = collection(firestore, 'tenants');
-  try {
-    const docRef = await addDoc(tenantsRef, {
-      ...tenant,
-      createdAt: serverTimestamp(),
-    });
-    return docRef.id;
-  } catch (serverError) {
-    const permissionError = new FirestorePermissionError({
-      path: tenantsRef.path,
-      operation: 'create',
-      requestResourceData: tenant,
-    });
-    errorEmitter.emit('permission-error', permissionError);
-    throw permissionError;
-  }
-}
 
 export function CreateTenantDialog() {
   const { toast } = useToast();
@@ -149,12 +130,11 @@ export function CreateTenantDialog() {
       const { apiServers, apiGatewayRoutes, eventStreams, upstreamApis } =
         configResult;
 
-      const newTenant: Omit<Tenant, 'id'> = {
+      const newTenant: Omit<Tenant, 'id'| 'createdAt'> = {
         userId: user.uid,
         name,
         description: values.description,
         logoUrl: `https://picsum.photos/seed/${Math.random()}/100/100`,
-        createdAt: new Date().toISOString(),
         apiServers,
         apiGateway: {
           endpoint: `https://${name
@@ -181,6 +161,7 @@ export function CreateTenantDialog() {
       form.reset();
 
       router.push(`/dashboard`);
+      router.refresh();
     } catch (error) {
       console.error(error);
       toast({

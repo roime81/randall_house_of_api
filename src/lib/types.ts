@@ -15,7 +15,7 @@ export interface Tenant {
   name: string;
   description: string;
   logoUrl: string;
-  createdAt: string;
+  createdAt: FieldValue;
   apiServers: ApiServer[];
   apiGateway: {
     endpoint: string;
