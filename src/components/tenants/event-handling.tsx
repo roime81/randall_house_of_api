@@ -5,13 +5,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Zap } from 'lucide-react';
 import { EventStream } from '@/lib/types';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 type EventHandlingProps = {
-  initialStreams: EventStream[];
+  initialStreams?: EventStream[];
 };
 
 export default function EventHandling({ initialStreams = [] }: EventHandlingProps) {
     const [streams, setStreams] = React.useState(initialStreams);
+    const [open, setOpen] = React.useState(false);
+
+    const handleAddStream = () => {
+        // In a real app, you'd handle form state and submission
+        setOpen(false);
+    }
 
     return (
         <Card>
@@ -21,10 +30,29 @@ export default function EventHandling({ initialStreams = [] }: EventHandlingProp
                     <CardTitle className="font-headline flex items-center gap-2"><Zap /> Event Streams</CardTitle>
                     <CardDescription>Real-time event feeds from your toolchain.</CardDescription>
                 </div>
-                <Button size="sm" className="gap-1" variant="outline">
-                    <PlusCircle className="h-4 w-4" />
-                    New Stream
-                </Button>
+                <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger asChild>
+                        <Button size="sm" className="gap-1" variant="outline">
+                            <PlusCircle className="h-4 w-4" />
+                            New Stream
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>New Event Stream</DialogTitle>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="topic" className="text-right">Topic</Label>
+                                <Input id="topic" placeholder="e.g., github:push:main, kafka:orders" className="col-span-3" />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+                            <Button onClick={handleAddStream}>Save</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
                 </div>
             </CardHeader>
             <CardContent>
