@@ -11,6 +11,7 @@ import DataStorage from '@/components/tenants/data-storage';
 import AiSummary from '@/components/tenants/ai-summary';
 import EventHandling from '@/components/tenants/event-handling';
 import UpstreamApis from '@/components/tenants/upstream-apis';
+import MonetizeApi from '@/components/tenants/monetize-api';
 
 export default function TenantDetailPage() {
   const params = useParams();
@@ -41,16 +42,19 @@ export default function TenantDetailPage() {
       <TenantHeader tenant={tenant} />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <ApiServers initialServers={tenant.apiServers} />
+          <ApiServers initialServers={tenant.apiServers || []} />
           <ApiGateway tenantId={tenant.id} gateway={tenant.apiGateway} />
         </div>
         <div className="lg:col-span-1 flex flex-col gap-6">
           <AiSummary tenantId={tenant.id} dataStore={tenant.dataStore} />
           <DataStorage data={tenant.dataStore.sampleData} />
         </div>
+        <div className="lg:col-span-3 flex flex-col gap-6">
+            <MonetizeApi />
+        </div>
         <div className="lg:col-span-3 grid md:grid-cols-2 gap-6">
-          <EventHandling initialStreams={tenant.eventStreams} />
-          <UpstreamApis initialApis={tenant.upstreamApis} />
+          <EventHandling initialStreams={tenant.eventStreams || []} />
+          <UpstreamApis initialApis={tenant.upstreamApis || []} />
         </div>
       </div>
     </div>
