@@ -9,16 +9,15 @@ import DataStorage from '@/components/tenants/data-storage';
 import AiSummary from '@/components/tenants/ai-summary';
 import EventHandling from '@/components/tenants/event-handling';
 import UpstreamApis from '@/components/tenants/upstream-apis';
-import { useDoc, useFirestore } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { useMemo } from 'react';
 
 export default function TenantDetailPage() {
   const params = useParams();
   const tenantId = params.tenantId as string;
   const firestore = useFirestore();
 
-  const tenantRef = useMemo(() => {
+  const tenantRef = useMemoFirebase(() => {
     if (!firestore || !tenantId) return null;
     return doc(firestore, 'tenants', tenantId);
   }, [firestore, tenantId]);
