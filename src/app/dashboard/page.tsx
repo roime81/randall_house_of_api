@@ -13,24 +13,34 @@ export default function DashboardPage() {
   const { user, profile, loading: isUserLoading } = useUser();
 
   const tenantsQuery = useMemoFirebase(() => {
-    if (!firestore || !user || !profile) return null;
+    if (!firestore || !user || !profile) {
+      return null; // Return null if dependencies are not ready
+    }
 
-    // Admins can see all tenants. Regular users can only see their own.
+    // Admins can see all tenants.
     if (profile.role === 'admin') {
       return collection(firestore, 'tenants');
     }
 
-    // This query now filters tenants by the current user's ID for non-admins.
+    // Regular users can only see their own tenants.
     return query(
       collection(firestore, 'tenants'),
       where('userId', '==', user.uid)
     );
   }, [firestore, user, profile]);
 
-  const { data: tenants, loading: tenantsLoading } =
-    useCollection<TenantSummary>(tenantsQuery);
+  const {
+    data: tenants,
+    isLoading: tenantsLoading,
+    error,
+  } = useCollection<TenantSummary>(tenantsQuery);
 
   const isLoading = isUserLoading || tenantsLoading;
+
+  if (error) {
+    // You can render a more user-friendly error message here
+    return <p>Error loading tenants: {error.message}</p>;
+  }
 
   return (
     <>
@@ -41,11 +51,15 @@ export default function DashboardPage() {
         </div>
       </div>
       {isLoading && <p>Loading tenants...</p>}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {tenants?.map(tenant => <TenantCard key={tenant.id} tenant={tenant} />)}
-      </div>
-      {tenants && tenants.length === 0 && !isLoading && (
-        <div className="text-center py-10">
+      {!isLoading && tenants && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {tenants.map(tenant => (
+            <TenantCard key={tenant.id} tenant={tenant} />
+          ))}
+        </div>
+      )}
+      {!isLoading && (!tenants || tenants.length === 0) && (
+        <div className="py-10 text-center">
           <h3 className="text-lg font-semibold">No Tenants Found</h3>
           <p className="text-muted-foreground">
             Get started by creating a new tenant.

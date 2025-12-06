@@ -6,7 +6,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 
 import type { UserProfile } from '@/lib/types';
-import { useAuth, useFirestore } from '../provider';
+import { useAuth, useFirestore, useMemoFirebase } from '../provider';
 import { useDoc } from '../firestore/use-doc';
 
 interface UseUserReturn {
@@ -42,12 +42,16 @@ export function useUser(): UseUserReturn {
     return () => unsubscribe();
   }, [auth]);
 
-  const userDocRef =
-    firestore && user ? doc(firestore, 'users', user.uid) : null;
+  const userDocRef = useMemoFirebase(() => {
+      if (firestore && user) {
+        return doc(firestore, 'users', user.uid);
+      }
+      return null;
+    }, [firestore, user]);
     
   const {
     data: profile,
-    loading: loadingProfile,
+    isLoading: loadingProfile,
     error: profileError,
   } = useDoc<UserProfile>(userDocRef);
 
