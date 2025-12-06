@@ -160,8 +160,9 @@ export function CreateTenantDialog() {
       setOpen(false);
       form.reset();
 
-      router.push(`/dashboard`);
-      router.refresh();
+      // Force a hard reload to ensure the new tenant is fetched and displayed.
+      window.location.href = '/dashboard';
+
     } catch (error) {
       console.error(error);
       toast({
