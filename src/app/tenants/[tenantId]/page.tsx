@@ -23,9 +23,9 @@ export default function TenantDetailPage() {
     return doc(firestore, 'tenants', tenantId);
   }, [firestore, tenantId]);
 
-  const { data: tenant, loading } = useDoc<Tenant>(tenantRef);
+  const { data: tenant, isLoading } = useDoc<Tenant>(tenantRef);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <p>Loading Tenant...</p>
