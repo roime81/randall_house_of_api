@@ -37,6 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 type ApiServersProps = {
   initialServers?: ApiServer[];
@@ -54,6 +55,7 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
   const [serverToTerminate, setServerToTerminate] = React.useState<
     ApiServer | undefined
   >(undefined);
+  const { toast } = useToast();
 
   const addServer = (
     newServer: Omit<ApiServer, 'id' | 'createdAt' | 'status'>
@@ -99,6 +101,14 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
   };
 
   const confirmTermination = (server: ApiServer) => {
+    if (server.status !== 'stopped') {
+      toast({
+        variant: 'destructive',
+        title: 'Termination Failed',
+        description: `Server "${server.name}" must be stopped before termination.`,
+      });
+      return;
+    }
     setServerToTerminate(server);
   };
 
