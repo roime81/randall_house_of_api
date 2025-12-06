@@ -5,8 +5,8 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 
 export const metadata: Metadata = {
-  title: "ApexFlow",
-  description: 'Your unified platform for managing multi-cloud API infrastructure and workflows.',
+  title: "TenantFlow",
+  description: 'Your unified platform for managing multi-tenant infrastructure and workflows.',
 };
 
 export default function RootLayout({
