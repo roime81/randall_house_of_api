@@ -158,6 +158,41 @@ export async function addEventStream(
 }
 
 /**
+ * Deletes a specific event stream from a tenant's list.
+ */
+export async function deleteEventStream(
+  firestore: Firestore,
+  tenantId: string,
+  streamId: string
+) {
+  const tenantRef = doc(firestore, 'tenants', tenantId);
+
+  try {
+    const tenantSnap = await getDoc(tenantRef);
+    if (!tenantSnap.exists()) {
+      throw new Error('Tenant not found');
+    }
+    const tenantData = tenantSnap.data() as Tenant;
+    const currentStreams = tenantData.eventStreams || [];
+
+    const updatedStreams = currentStreams.filter(stream => stream.id !== streamId);
+
+    await updateDoc(tenantRef, {
+      eventStreams: updatedStreams,
+    });
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+      path: tenantRef.path,
+      operation: 'update',
+      requestResourceData: { eventStreams: '[...]' },
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw permissionError;
+  }
+}
+
+
+/**
  * Adds a new upstream API to a tenant's list.
  */
 export async function addUpstreamApi(
