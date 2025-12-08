@@ -88,9 +88,11 @@ service cloud.firestore {
      * @allow (create) Any signed-in user, as long as they set themselves as the owner.
      */
     match /tenants/{tenantId} {
-      allow get, update, delete: if isOwner(resource) || isAdmin();
+      allow get, delete: if isOwner(resource) || isAdmin();
       allow list: if isQueryingOwnTenants() || isAdmin();
       allow create: if isCreatingOwnResource();
+      // Allow owner or admin to update their own tenant document
+      allow update: if isOwner(resource) || isAdmin();
     }
   }
 }

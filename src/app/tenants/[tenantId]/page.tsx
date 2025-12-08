@@ -50,7 +50,7 @@ export default function TenantDetailPage() {
           <DataStorage data={tenant.dataStore.sampleData} />
         </div>
         <div className="lg:col-span-3 flex flex-col gap-6">
-            <MonetizeApi />
+            <MonetizeApi tenant={tenant} />
         </div>
         <div className="lg:col-span-3 grid md:grid-cols-2 gap-6">
           <EventHandling tenantId={tenantId} initialStreams={tenant.eventStreams || []} />

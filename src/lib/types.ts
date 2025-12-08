@@ -9,9 +9,26 @@ export interface UserProfile {
   createdAt?: FieldValue;
 }
 
+export interface MonetizationTier {
+  id: 'hobby' | 'pro' | 'enterprise';
+  name: string;
+  price: number; // -1 for custom
+  requests: number; // -1 for unlimited
+  rateLimit: number; // requests per minute, -1 for unlimited
+  features: string[];
+  enabled: boolean;
+}
+
+export interface MonetizationSettings {
+  enabled: boolean;
+  stripePublicKey: string;
+  stripeSecretKey: string;
+  tiers: MonetizationTier[];
+}
+
 export interface Tenant {
   id: string;
-  userId: string; 
+  userId: string;
   name: string;
   description: string;
   logoUrl: string;
@@ -28,6 +45,7 @@ export interface Tenant {
     usage: string;
     activityLog: string;
   };
+  monetization?: MonetizationSettings;
 }
 
 export type TenantSummary = Pick<

@@ -89,6 +89,9 @@
         },
         "dataStore": {
           "$ref": "#/entities/DataStore"
+        },
+        "monetization": {
+          "$ref": "#/entities/MonetizationSettings"
         }
       },
       "required": [
@@ -221,6 +224,32 @@
         "activityLog": {
           "type": "string"
         }
+      }
+    },
+    "MonetizationSettings": {
+      "title": "Monetization Settings",
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "stripePublicKey": { "type": "string" },
+        "stripeSecretKey": { "type": "string" },
+        "tiers": {
+          "type": "array",
+          "items": { "$ref": "#/entities/MonetizationTier" }
+        }
+      }
+    },
+    "MonetizationTier": {
+      "title": "Monetization Tier",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "enum": ["hobby", "pro", "enterprise"] },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "requests": { "type": "number" },
+        "rateLimit": { "type": "number" },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "enabled": { "type": "boolean" }
       }
     }
   },
