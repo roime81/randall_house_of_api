@@ -42,7 +42,7 @@ export default function TenantDetailPage() {
       <TenantHeader tenant={tenant} />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <ApiServers initialServers={tenant.apiServers || []} />
+          <ApiServers tenant={tenant} />
           <ApiGateway tenantId={tenant.id} gateway={tenant.apiGateway} />
         </div>
         <div className="lg:col-span-1 flex flex-col gap-6">

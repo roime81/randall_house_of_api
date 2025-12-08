@@ -25,7 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ApiServer } from '@/lib/types';
+import { ApiServer, Tenant } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
 import { CreateServerSheet } from './create-server-sheet';
 import {
@@ -39,9 +39,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useFirestore } from '@/firebase';
+import {
+  updateApiServerStatus,
+  deleteApiServer,
+} from '@/firebase/firestore/tenants';
 
 type ApiServersProps = {
-  initialServers?: ApiServer[];
+  tenant: Tenant;
 };
 
 const statusColor: { [key in ApiServer['status']]: string } = {
@@ -51,74 +56,74 @@ const statusColor: { [key in ApiServer['status']]: string } = {
   error: 'bg-red-500',
 };
 
-export default function ApiServers({ initialServers = [] }: ApiServersProps) {
-  const [servers, setServers] = React.useState<ApiServer[]>(initialServers);
+export default function ApiServers({ tenant }: ApiServersProps) {
   const [serverToDelete, setServerToDelete] = React.useState<
     ApiServer | undefined
   >(undefined);
   const { toast } = useToast();
+  const firestore = useFirestore();
 
-  const addServer = (
-    newServer: Omit<ApiServer, 'id' | 'createdAt' | 'status'>
+  const handleAction = async (
+    action: 'restart' | 'stop' | 'start' | 'delete',
+    server: ApiServer
   ) => {
-    const serverToAdd: ApiServer = {
-      ...newServer,
-      id: `srv-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      status: 'deploying',
-    };
+    if (!firestore) return;
 
-    setServers(prev => [...prev, serverToAdd]);
-
-    // Simulate deployment time
-    setTimeout(() => {
-      setServers(prev =>
-        prev.map(s =>
-          s.id === serverToAdd.id ? { ...s, status: 'running' } : s
-        )
-      );
-    }, 5000);
+    try {
+      switch (action) {
+        case 'restart':
+          await updateApiServerStatus(firestore, tenant.id, server.id, 'deploying');
+          setTimeout(async () => {
+            await updateApiServerStatus(firestore, tenant.id, server.id, 'running');
+          }, 3000);
+          break;
+        case 'stop':
+          await updateApiServerStatus(firestore, tenant.id, server.id, 'stopped');
+          break;
+        case 'start':
+          await updateApiServerStatus(firestore, tenant.id, server.id, 'running');
+          break;
+        case 'delete':
+          if (server.status !== 'stopped') {
+            toast({
+              variant: 'destructive',
+              title: 'Delete Failed',
+              description: `Server "${server.name}" must be stopped before deletion.`,
+            });
+            return;
+          }
+          setServerToDelete(server);
+          break;
+      }
+    } catch (error) {
+       toast({
+        variant: 'destructive',
+        title: 'Action Failed',
+        description: `Could not perform action on "${server.name}". Please try again.`,
+      });
+    }
   };
 
-  const handleRestart = (serverId: string) => {
-    setServers(prev =>
-      prev.map(s => (s.id === serverId ? { ...s, status: 'deploying' } : s))
-    );
-    setTimeout(() => {
-      setServers(prev =>
-        prev.map(s => (s.id === serverId ? { ...s, status: 'running' } : s))
-      );
-    }, 3000);
-  };
-
-  const handleToggleStatus = (
-    serverId: string,
-    currentStatus: ApiServer['status']
-  ) => {
-    const newStatus = currentStatus === 'running' ? 'stopped' : 'running';
-    setServers(prev =>
-      prev.map(s => (s.id === serverId ? { ...s, status: newStatus } : s))
-    );
-  };
-
-  const confirmDelete = (server: ApiServer) => {
-    if (server.status !== 'stopped') {
+  const executeDelete = async () => {
+    if (!firestore || !serverToDelete) return;
+    try {
+      await deleteApiServer(firestore, tenant.id, serverToDelete.id);
       toast({
+        title: 'Server Deleted',
+        description: `Server "${serverToDelete.name}" has been permanently deleted.`,
+      });
+    } catch (error) {
+       toast({
         variant: 'destructive',
         title: 'Delete Failed',
-        description: `Server "${server.name}" must be stopped before deletion.`,
+        description: `Could not delete server "${serverToDelete.name}".`,
       });
-      return;
+    } finally {
+      setServerToDelete(undefined);
     }
-    setServerToDelete(server);
   };
-
-  const handleDelete = (serverToDelete: ApiServer) => {
-    if (serverToDelete) {
-      setServers(prev => prev.filter(s => s.id !== serverToDelete.id));
-    }
-    setServerToDelete(undefined);
-  };
+  
+  const servers = tenant.apiServers || [];
 
   return (
     <>
@@ -133,7 +138,7 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
                 Your services deployed across multiple cloud providers.
               </CardDescription>
             </div>
-            <CreateServerSheet onServerCreate={addServer} />
+            <CreateServerSheet tenantId={tenant.id} />
           </div>
         </CardHeader>
         <CardContent>
@@ -179,28 +184,26 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => handleRestart(server.id)}
+                          onClick={() => handleAction('restart', server)}
                           disabled={server.status === 'deploying'}
                         >
                           Restart
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() =>
-                            handleToggleStatus(server.id, server.status)
+                            handleAction(
+                              server.status === 'running' ? 'stop' : 'start',
+                              server
+                            )
                           }
                           disabled={server.status === 'deploying'}
                         >
                           {server.status === 'running' ? 'Stop' : 'Start'}
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleToggleStatus(server.id, 'running')}
-                        >
-                          Terminate
-                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-red-500 focus:bg-red-500/10 focus:text-red-600"
-                          onClick={() => confirmDelete(server)}
+                          onClick={() => handleAction('delete', server)}
                           disabled={server.status !== 'stopped'}
                         >
                           Delete
@@ -240,7 +243,7 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive hover:bg-destructive/90"
-              onClick={() => handleDelete(serverToDelete!)}
+              onClick={executeDelete}
             >
               Yes, delete server
             </AlertDialogAction>

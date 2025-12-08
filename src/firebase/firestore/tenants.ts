@@ -1,0 +1,124 @@
+'use client';
+
+import {
+  Firestore,
+  doc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  getDoc,
+} from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { ApiServer, Tenant } from '@/lib/types';
+
+/**
+ * Adds a new API server to a tenant's list of servers.
+ * It starts in a 'deploying' state and transitions to 'running'.
+ */
+export async function addApiServer(
+  firestore: Firestore,
+  tenantId: string,
+  serverData: Omit<ApiServer, 'id' | 'createdAt' | 'status'>
+) {
+  const tenantRef = doc(firestore, 'tenants', tenantId);
+
+  const newServer: ApiServer = {
+    ...serverData,
+    id: `srv-${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    status: 'deploying',
+  };
+
+  try {
+    await updateDoc(tenantRef, {
+      apiServers: arrayUnion(newServer),
+    });
+
+    // Simulate deployment time and then set the status to 'running'
+    setTimeout(async () => {
+      await updateApiServerStatus(firestore, tenantId, newServer.id, 'running');
+    }, 5000);
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+      path: tenantRef.path,
+      operation: 'update',
+      requestResourceData: { apiServers: arrayUnion(newServer) },
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw permissionError;
+  }
+}
+
+/**
+ * Updates the status of a specific API server within a tenant document.
+ */
+export async function updateApiServerStatus(
+  firestore: Firestore,
+  tenantId: string,
+  serverId: string,
+  status: ApiServer['status']
+) {
+  const tenantRef = doc(firestore, 'tenants', tenantId);
+
+  try {
+    const tenantSnap = await getDoc(tenantRef);
+    if (!tenantSnap.exists()) {
+      throw new Error('Tenant not found');
+    }
+    const tenantData = tenantSnap.data() as Tenant;
+    const servers = tenantData.apiServers || [];
+
+    const updatedServers = servers.map(server =>
+      server.id === serverId ? { ...server, status } : server
+    );
+
+    await updateDoc(tenantRef, { apiServers: updatedServers });
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+      path: tenantRef.path,
+      operation: 'update',
+      // We can't provide the exact update payload here easily,
+      // but we can describe the intent.
+      requestResourceData: {
+        'apiServers[?(@.id==...)]': { status: status },
+      },
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw permissionError;
+  }
+}
+
+/**
+ * Deletes a specific API server from a tenant's list of servers.
+ */
+export async function deleteApiServer(
+  firestore: Firestore,
+  tenantId: string,
+  serverId: string
+) {
+  const tenantRef = doc(firestore, 'tenants', tenantId);
+
+  try {
+    const tenantSnap = await getDoc(tenantRef);
+    if (!tenantSnap.exists()) {
+      throw new Error('Tenant not found');
+    }
+    const tenantData = tenantSnap.data() as Tenant;
+    const serverToDelete = tenantData.apiServers.find(s => s.id === serverId);
+
+    if (serverToDelete) {
+      await updateDoc(tenantRef, {
+        apiServers: arrayRemove(serverToDelete),
+      });
+    }
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+      path: tenantRef.path,
+      operation: 'update',
+      requestResourceData: { 'apiServers': 'arrayRemove(...)' },
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw permissionError;
+  }
+}
