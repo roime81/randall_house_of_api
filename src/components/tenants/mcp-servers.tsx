@@ -89,7 +89,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
           await updateApiServerStatus(firestore, tenant.id, server.id, 'running');
           break;
         case 'delete':
-          if (server.status !== 'stopped') {
+           if (server.status !== 'stopped') {
             toast({
               variant: 'destructive',
               title: 'Delete Failed',
@@ -109,7 +109,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
     }
   };
 
-  const executeDelete = async () => {
+ const confirmDelete = async () => {
     if (!firestore || !tenant.id || !serverToDelete) return;
   
     try {
@@ -189,7 +189,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
+                         <DropdownMenuItem
                           onClick={() => handleAction('restart', server)}
                           disabled={
                             server.status === 'deploying' ||
@@ -252,7 +252,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive hover:bg-destructive/90"
-              onClick={executeDelete}
+              onClick={confirmDelete}
             >
               Yes, delete server
             </AlertDialogAction>
