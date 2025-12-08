@@ -116,8 +116,8 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
   const handleDelete = (serverToDelete: ApiServer) => {
     if (serverToDelete) {
       setServers(prev => prev.filter(s => s.id !== serverToDelete.id));
-      setServerToDelete(undefined);
     }
+    setServerToDelete(undefined);
   };
 
   return (
@@ -193,13 +193,7 @@ export default function ApiServers({ initialServers = [] }: ApiServersProps) {
                           {server.status === 'running' ? 'Stop' : 'Start'}
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() =>
-                            handleToggleStatus(server.id, 'running')
-                          }
-                          disabled={
-                            server.status === 'stopped' ||
-                            server.status === 'deploying'
-                          }
+                          onClick={() => handleToggleStatus(server.id, 'running')}
                         >
                           Terminate
                         </DropdownMenuItem>

@@ -34,6 +34,7 @@ export default function LoginPage() {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
+      // storeUserProfile will now only create a profile if one doesn't exist.
       await storeUserProfile(firestore, result.user);
       router.push('/dashboard');
     } catch (error) {

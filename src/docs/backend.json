@@ -30,6 +30,11 @@
             "user"
           ],
           "description": "The user's role in the system."
+        },
+        "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the user profile was created."
         }
       },
       "required": [
