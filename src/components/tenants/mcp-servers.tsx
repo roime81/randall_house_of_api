@@ -72,7 +72,6 @@ export default function ApiServers({ tenant }: ApiServersProps) {
     try {
       switch (action) {
         case 'restart':
-          // Simulate restart by showing deploying and then running
           await updateApiServerStatus(
             firestore,
             tenant.id,
@@ -110,20 +109,20 @@ export default function ApiServers({ tenant }: ApiServersProps) {
     }
   };
 
-  const executeDelete = async (server: ApiServer) => {
-    if (!firestore || !tenant.id) return;
-
+  const executeDelete = async () => {
+    if (!firestore || !tenant.id || !serverToDelete) return;
+  
     try {
-      await deleteApiServer(firestore, tenant.id, server.id);
+      await deleteApiServer(firestore, tenant.id, serverToDelete.id);
       toast({
         title: 'Server Deleted',
-        description: `Server "${server.name}" has been permanently deleted.`,
+        description: `Server "${serverToDelete.name}" has been permanently deleted.`,
       });
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Delete Failed',
-        description: `Could not delete server "${server.name}".`,
+        description: `Could not delete server "${serverToDelete.name}".`,
       });
     } finally {
       setServerToDelete(null);
@@ -253,7 +252,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive hover:bg-destructive/90"
-              onClick={() => serverToDelete && executeDelete(serverToDelete)}
+              onClick={executeDelete}
             >
               Yes, delete server
             </AlertDialogAction>

@@ -5,7 +5,6 @@ import {
   doc,
   updateDoc,
   arrayUnion,
-  arrayRemove,
   getDoc,
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -91,6 +90,9 @@ export async function updateApiServerStatus(
 
 /**
  * Deletes a specific API server from a tenant's list of servers.
+ * This function reads the current servers, filters out the one to be deleted,
+ * and overwrites the array in Firestore. This is safer than arrayRemove
+ * when dealing with complex objects that may have Date/Timestamp mismatches.
  */
 export async function deleteApiServer(
   firestore: Firestore,
@@ -105,18 +107,20 @@ export async function deleteApiServer(
       throw new Error('Tenant not found');
     }
     const tenantData = tenantSnap.data() as Tenant;
-    const serverToDelete = (tenantData.apiServers || []).find(s => s.id === serverId);
+    const currentServers = tenantData.apiServers || [];
 
-    if (serverToDelete) {
-      await updateDoc(tenantRef, {
-        apiServers: arrayRemove(serverToDelete),
-      });
-    }
+    // Filter out the server to be deleted
+    const updatedServers = currentServers.filter(server => server.id !== serverId);
+
+    // Overwrite the array with the new filtered array
+    await updateDoc(tenantRef, {
+      apiServers: updatedServers,
+    });
   } catch (serverError) {
     const permissionError = new FirestorePermissionError({
       path: tenantRef.path,
       operation: 'update',
-      requestResourceData: { 'apiServers': 'arrayRemove(...)' },
+      requestResourceData: { apiServers: '[...]' }, // Representing an array overwrite
     });
     errorEmitter.emit('permission-error', permissionError);
     throw permissionError;
