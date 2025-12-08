@@ -10,7 +10,7 @@ import {
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { ApiServer, Tenant } from '@/lib/types';
+import { ApiServer, Tenant, EventStream, UpstreamApi } from '@/lib/types';
 
 /**
  * Adds a new API server to a tenant's list of servers.
@@ -38,7 +38,7 @@ export async function addApiServer(
     // Simulate deployment time and then set the status to 'running'
     setTimeout(async () => {
       await updateApiServerStatus(firestore, tenantId, newServer.id, 'running');
-    }, 5000);
+    }, 3000);
   } catch (serverError) {
     const permissionError = new FirestorePermissionError({
       path: tenantRef.path,
@@ -105,7 +105,7 @@ export async function deleteApiServer(
       throw new Error('Tenant not found');
     }
     const tenantData = tenantSnap.data() as Tenant;
-    const serverToDelete = tenantData.apiServers.find(s => s.id === serverId);
+    const serverToDelete = (tenantData.apiServers || []).find(s => s.id === serverId);
 
     if (serverToDelete) {
       await updateDoc(tenantRef, {
@@ -117,6 +117,65 @@ export async function deleteApiServer(
       path: tenantRef.path,
       operation: 'update',
       requestResourceData: { 'apiServers': 'arrayRemove(...)' },
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw permissionError;
+  }
+}
+
+
+/**
+ * Adds a new event stream to a tenant's list.
+ */
+export async function addEventStream(
+  firestore: Firestore,
+  tenantId: string,
+  streamData: Omit<EventStream, 'id'>
+) {
+  const tenantRef = doc(firestore, 'tenants', tenantId);
+  const newStream: EventStream = {
+    ...streamData,
+    id: `evs-${Date.now()}`,
+  };
+
+  try {
+    await updateDoc(tenantRef, {
+      eventStreams: arrayUnion(newStream),
+    });
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+      path: tenantRef.path,
+      operation: 'update',
+      requestResourceData: { eventStreams: arrayUnion(newStream) },
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw permissionError;
+  }
+}
+
+/**
+ * Adds a new upstream API to a tenant's list.
+ */
+export async function addUpstreamApi(
+  firestore: Firestore,
+  tenantId: string,
+  apiData: Omit<UpstreamApi, 'id'>
+) {
+  const tenantRef = doc(firestore, 'tenants', tenantId);
+  const newApi: UpstreamApi = {
+    ...apiData,
+    id: `upa-${Date.now()}`,
+  };
+
+  try {
+    await updateDoc(tenantRef, {
+      upstreamApis: arrayUnion(newApi),
+    });
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+      path: tenantRef.path,
+      operation: 'update',
+      requestResourceData: { upstreamApis: arrayUnion(newApi) },
     });
     errorEmitter.emit('permission-error', permissionError);
     throw permissionError;

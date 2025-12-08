@@ -57,9 +57,7 @@ const statusColor: { [key in ApiServer['status']]: string } = {
 };
 
 export default function ApiServers({ tenant }: ApiServersProps) {
-  const [serverToDelete, setServerToDelete] = React.useState<
-    ApiServer | undefined
-  >(undefined);
+  const [serverToDelete, setServerToDelete] = React.useState<ApiServer | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
 
@@ -67,14 +65,15 @@ export default function ApiServers({ tenant }: ApiServersProps) {
     action: 'restart' | 'stop' | 'start' | 'delete',
     server: ApiServer
   ) => {
-    if (!firestore) return;
+    if (!firestore || !tenant.id) return;
 
     try {
       switch (action) {
         case 'restart':
+          // Simulate restart by showing deploying and then running
           await updateApiServerStatus(firestore, tenant.id, server.id, 'deploying');
-          setTimeout(async () => {
-            await updateApiServerStatus(firestore, tenant.id, server.id, 'running');
+          setTimeout(() => {
+            updateApiServerStatus(firestore, tenant.id, server.id, 'running');
           }, 3000);
           break;
         case 'stop':
@@ -84,7 +83,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
           await updateApiServerStatus(firestore, tenant.id, server.id, 'running');
           break;
         case 'delete':
-          if (server.status !== 'stopped') {
+           if (server.status !== 'stopped') {
             toast({
               variant: 'destructive',
               title: 'Delete Failed',
@@ -105,7 +104,8 @@ export default function ApiServers({ tenant }: ApiServersProps) {
   };
 
   const executeDelete = async () => {
-    if (!firestore || !serverToDelete) return;
+    if (!firestore || !serverToDelete || !tenant.id) return;
+
     try {
       await deleteApiServer(firestore, tenant.id, serverToDelete.id);
       toast({
@@ -119,7 +119,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
         description: `Could not delete server "${serverToDelete.name}".`,
       });
     } finally {
-      setServerToDelete(undefined);
+      setServerToDelete(null);
     }
   };
   
@@ -183,9 +183,9 @@ export default function ApiServers({ tenant }: ApiServersProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
+                         <DropdownMenuItem
                           onClick={() => handleAction('restart', server)}
-                          disabled={server.status === 'deploying'}
+                          disabled={server.status === 'deploying' || server.status === 'stopped'}
                         >
                           Restart
                         </DropdownMenuItem>
@@ -226,7 +226,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
       </Card>
       <AlertDialog
         open={!!serverToDelete}
-        onOpenChange={() => setServerToDelete(undefined)}
+        onOpenChange={(open) => !open && setServerToDelete(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>

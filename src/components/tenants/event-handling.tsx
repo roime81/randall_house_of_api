@@ -8,18 +8,41 @@ import { EventStream } from '@/lib/types';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { useFirestore } from '@/firebase';
+import { addEventStream } from '@/firebase/firestore/tenants';
+import { useToast } from '@/hooks/use-toast';
+
 
 type EventHandlingProps = {
+  tenantId: string;
   initialStreams?: EventStream[];
 };
 
-export default function EventHandling({ initialStreams = [] }: EventHandlingProps) {
-    const [streams, setStreams] = React.useState(initialStreams);
+export default function EventHandling({ tenantId, initialStreams = [] }: EventHandlingProps) {
     const [open, setOpen] = React.useState(false);
+    const [topic, setTopic] = React.useState('');
+    const firestore = useFirestore();
+    const { toast } = useToast();
 
-    const handleAddStream = () => {
-        // In a real app, you'd handle form state and submission
-        setOpen(false);
+    const handleAddStream = async () => {
+        if (!firestore || !topic) return;
+
+        try {
+            await addEventStream(firestore, tenantId, { topic, status: 'active' });
+            toast({
+                title: 'Event Stream Added',
+                description: `Stream for topic "${topic}" has been configured.`,
+            });
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                title: 'Failed to Add Stream',
+                description: 'Could not add the new event stream.',
+            });
+        } finally {
+            setTopic('');
+            setOpen(false);
+        }
     }
 
     return (
@@ -44,7 +67,7 @@ export default function EventHandling({ initialStreams = [] }: EventHandlingProp
                         <div className="grid gap-4 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
                                 <Label htmlFor="topic" className="text-right">Topic</Label>
-                                <Input id="topic" placeholder="e.g., github:push:main, kafka:orders" className="col-span-3" />
+                                <Input id="topic" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g., github:push:main, kafka:orders" className="col-span-3" />
                             </div>
                         </div>
                         <DialogFooter>
@@ -57,7 +80,7 @@ export default function EventHandling({ initialStreams = [] }: EventHandlingProp
             </CardHeader>
             <CardContent>
                 <div className="space-y-2">
-                    {streams.map(stream => (
+                    {initialStreams.map(stream => (
                         <div key={stream.id} className="flex items-center justify-between rounded-md border p-3">
                             <div className="flex items-center gap-3">
                                 <div className={`h-2.5 w-2.5 rounded-full ${stream.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`} />
@@ -68,7 +91,7 @@ export default function EventHandling({ initialStreams = [] }: EventHandlingProp
                             </div>
                         </div>
                     ))}
-                    {streams.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No streams configured.</p>}
+                    {initialStreams.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No streams configured.</p>}
                 </div>
             </CardContent>
         </Card>

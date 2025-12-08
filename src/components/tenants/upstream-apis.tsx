@@ -8,14 +8,44 @@ import { UpstreamApi } from '@/lib/types';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { useFirestore } from '@/firebase';
+import { useToast } from '@/hooks/use-toast';
+import { addUpstreamApi } from '@/firebase/firestore/tenants';
 
 type UpstreamApisProps = {
+  tenantId: string;
   initialApis?: UpstreamApi[];
 };
 
-export default function UpstreamApis({ initialApis = [] }: UpstreamApisProps) {
-    const [apis, setApis] = React.useState(initialApis);
+export default function UpstreamApis({ tenantId, initialApis = [] }: UpstreamApisProps) {
     const [open, setOpen] = React.useState(false);
+    const [name, setName] = React.useState('');
+    const [url, setUrl] = React.useState('');
+    const firestore = useFirestore();
+    const { toast } = useToast();
+
+    const handleAddApi = async () => {
+        if (!firestore || !name || !url) return;
+
+        try {
+            await addUpstreamApi(firestore, tenantId, { name, baseUrl: url, authenticated: false });
+             toast({
+                title: 'Upstream API Added',
+                description: `API "${name}" has been registered.`,
+            });
+        } catch (error) {
+             toast({
+                variant: 'destructive',
+                title: 'Failed to Add API',
+                description: 'Could not add the new upstream API.',
+            });
+        } finally {
+            setName('');
+            setUrl('');
+            setOpen(false);
+        }
+    }
+
 
     return (
         <Card>
@@ -39,16 +69,16 @@ export default function UpstreamApis({ initialApis = [] }: UpstreamApisProps) {
                             <div className="grid gap-4 py-4">
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="name" className="text-right">Name</Label>
-                                    <Input id="name" placeholder="e.g., GitHub API" className="col-span-3" />
+                                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., GitHub API" className="col-span-3" />
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="url" className="text-right">Base URL</Label>
-                                    <Input id="url" placeholder="https://api.github.com" className="col-span-3" />
+                                    <Input id="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://api.github.com" className="col-span-3" />
                                 </div>
                             </div>
                             <DialogFooter>
                                 <Button variant="ghost" onClick={()=>setOpen(false)}>Cancel</Button>
-                                <Button onClick={()=>setOpen(false)}>Save</Button>
+                                <Button onClick={handleAddApi}>Save</Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
@@ -56,7 +86,7 @@ export default function UpstreamApis({ initialApis = [] }: UpstreamApisProps) {
             </CardHeader>
             <CardContent>
                  <div className="space-y-2">
-                    {apis.map(api => (
+                    {initialApis.map(api => (
                         <div key={api.id} className="flex items-center justify-between rounded-md border p-3">
                             <div>
                                 <p className="font-medium">{api.name}</p>
@@ -68,7 +98,7 @@ export default function UpstreamApis({ initialApis = [] }: UpstreamApisProps) {
                             </div>
                         </div>
                     ))}
-                    {apis.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No upstream APIs registered.</p>}
+                    {initialApis.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No upstream APIs registered.</p>}
                 </div>
             </CardContent>
         </Card>

@@ -53,8 +53,8 @@ export default function TenantDetailPage() {
             <MonetizeApi />
         </div>
         <div className="lg:col-span-3 grid md:grid-cols-2 gap-6">
-          <EventHandling initialStreams={tenant.eventStreams || []} />
-          <UpstreamApis initialApis={tenant.upstreamApis || []} />
+          <EventHandling tenantId={tenantId} initialStreams={tenant.eventStreams || []} />
+          <UpstreamApis tenantId={tenantId} initialApis={tenant.upstreamApis || []} />
         </div>
       </div>
     </div>

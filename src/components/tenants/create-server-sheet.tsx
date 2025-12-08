@@ -71,7 +71,7 @@ export function CreateServerSheet({ tenantId }: CreateServerSheetProps) {
   }
 
   const handleSubmit = async () => {
-    if (!firestore || !name) return;
+    if (!firestore || !name || !tenantId) return;
     setIsDeploying(true);
 
     let newServerData: Omit<ApiServer, 'id' | 'createdAt' | 'status'>;
