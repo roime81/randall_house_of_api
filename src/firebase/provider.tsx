@@ -6,7 +6,7 @@ import { Firestore } from 'firebase/firestore';
 import { Auth, User, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 import { UserProfile } from '@/lib/types';
-import { useDoc } from './firestore/use-doc';
+import { useDoc } from '@/firebase/firestore/use-doc';
 import { doc } from 'firebase/firestore';
 
 interface FirebaseProviderProps {

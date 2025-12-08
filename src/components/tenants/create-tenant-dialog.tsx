@@ -36,7 +36,7 @@ import {
   runGenerateTenantConfig,
   runGenerateBusinessDescription,
 } from '@/lib/actions';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase/provider';
 import { addTenant } from '@/firebase/firestore/mutations';
 
 
@@ -57,6 +57,7 @@ export function CreateTenantDialog() {
   const [open, setOpen] = React.useState(false);
   const [suggestionKeyword, setSuggestionKeyword] = React.useState('');
   const [isSuggesting, setIsSuggesting] = React.useState(false);
+  const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof createTenantSchema>>({
     resolver: zodResolver(createTenantSchema),
@@ -65,34 +66,37 @@ export function CreateTenantDialog() {
     },
   });
 
-  const handleSuggestDescription = async () => {
+  const handleSuggestDescription = () => {
     if (!suggestionKeyword) return;
-    setIsSuggesting(true);
-    try {
-      const result = await runGenerateBusinessDescription({
-        keyword: suggestionKeyword,
-      });
-      if (result.descriptions.length > 0) {
-        const randomDescription =
-          result.descriptions[
-            Math.floor(Math.random() * result.descriptions.length)
-          ];
-        form.setValue('description', randomDescription);
-        toast({
-          title: 'Suggestion applied!',
-          description: 'A new business description has been generated.',
+    
+    startTransition(async () => {
+      setIsSuggesting(true);
+      try {
+        const result = await runGenerateBusinessDescription({
+          keyword: suggestionKeyword,
         });
+        if (result.descriptions.length > 0) {
+          const randomDescription =
+            result.descriptions[
+              Math.floor(Math.random() * result.descriptions.length)
+            ];
+          form.setValue('description', randomDescription);
+          toast({
+            title: 'Suggestion applied!',
+            description: 'A new business description has been generated.',
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        toast({
+          variant: 'destructive',
+          title: 'Suggestion Failed',
+          description: 'Could not generate a description. Please try again.',
+        });
+      } finally {
+        setIsSuggesting(false);
       }
-    } catch (error) {
-      console.error(error);
-      toast({
-        variant: 'destructive',
-        title: 'Suggestion Failed',
-        description: 'Could not generate a description. Please try again.',
-      });
-    } finally {
-      setIsSuggesting(false);
-    }
+    });
   };
 
   async function onSubmit(values: z.infer<typeof createTenantSchema>) {
@@ -209,15 +213,15 @@ export function CreateTenantDialog() {
                     placeholder="e.g. 'ride sharing app', 'e-commerce backend'"
                     value={suggestionKeyword}
                     onChange={e => setSuggestionKeyword(e.target.value)}
-                    disabled={isSuggesting}
+                    disabled={isSuggesting || isPending}
                   />
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleSuggestDescription}
-                    disabled={isSuggesting || !suggestionKeyword}
+                    disabled={isSuggesting || isPending || !suggestionKeyword}
                   >
-                    {isSuggesting ? (
+                    {isSuggesting || isPending ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                       <Sparkles className="mr-2 h-4 w-4" />
