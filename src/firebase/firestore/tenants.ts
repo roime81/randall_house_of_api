@@ -270,3 +270,40 @@ export async function addUpstreamApi(
     throw permissionError;
   }
 }
+
+/**
+ * Deletes a specific upstream API from a tenant's list.
+ */
+export async function deleteUpstreamApi(
+  firestore: Firestore,
+  tenantId: string,
+  apiId: string
+) {
+  const tenantRef = doc(firestore, 'tenants', tenantId);
+
+  try {
+    const tenantSnap = await getDoc(tenantRef);
+    if (!tenantSnap.exists()) {
+      throw new Error('Tenant not found');
+    }
+    const tenantData = tenantSnap.data() as Tenant;
+    const currentApis = tenantData.upstreamApis || [];
+
+    const updatedApis = currentApis.filter(
+      (api) => api.id !== apiId
+    );
+    
+    await updateDoc(tenantRef, {
+        upstreamApis: updatedApis,
+    });
+
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+      path: tenantRef.path,
+      operation: 'update',
+      requestResourceData: { upstreamApis: '[...]' },
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw permissionError;
+  }
+}
