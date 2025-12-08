@@ -30,6 +30,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { runApiRequest } from '@/lib/actions';
 import { Textarea } from '../ui/textarea';
+import { Label } from '../ui/label';
 
 type ApiGatewayProps = {
   tenantId: string;
@@ -318,7 +319,7 @@ export default function ApiGateway({
               </Accordion>
             </div>
           ))}
-          {routes.length > 0 && filteredServers.length === 0 && (
+          {searchTerm && filteredServers.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-4">
               No routes match your search.
             </p>
