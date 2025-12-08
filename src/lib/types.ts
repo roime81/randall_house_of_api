@@ -70,7 +70,7 @@ export interface ApiRoute {
 export interface EventStream {
   id: string;
   topic: string;
-  status: 'active' | 'inactive';
+  status: 'running' | 'stopped' | 'processing' | 'error';
 }
 
 export interface UpstreamApi {

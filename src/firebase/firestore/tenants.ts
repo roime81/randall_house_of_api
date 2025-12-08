@@ -137,18 +137,24 @@ export async function deleteApiServer(
 export async function addEventStream(
   firestore: Firestore,
   tenantId: string,
-  streamData: Omit<EventStream, 'id'>
+  streamData: Omit<EventStream, 'id' | 'status'>
 ) {
   const tenantRef = doc(firestore, 'tenants', tenantId);
   const newStream: EventStream = {
     ...streamData,
     id: `evs-${Date.now()}`,
+    status: 'processing',
   };
 
   try {
     await updateDoc(tenantRef, {
       eventStreams: arrayUnion(newStream),
     });
+
+    setTimeout(async () => {
+      await updateEventStreamStatus(firestore, tenantId, newStream.id, 'running');
+    }, 3000);
+
   } catch (serverError) {
     const permissionError = new FirestorePermissionError({
       path: tenantRef.path,
@@ -159,6 +165,44 @@ export async function addEventStream(
     throw permissionError;
   }
 }
+
+/**
+ * Updates the status of a specific Event Stream within a tenant document.
+ */
+export async function updateEventStreamStatus(
+  firestore: Firestore,
+  tenantId: string,
+  streamId: string,
+  status: EventStream['status']
+) {
+  const tenantRef = doc(firestore, 'tenants', tenantId);
+
+  try {
+    const tenantSnap = await getDoc(tenantRef);
+    if (!tenantSnap.exists()) {
+      throw new Error('Tenant not found');
+    }
+    const tenantData = tenantSnap.data() as Tenant;
+    const streams = tenantData.eventStreams || [];
+
+    const updatedStreams = streams.map(stream =>
+      stream.id === streamId ? { ...stream, status } : stream
+    );
+
+    await updateDoc(tenantRef, { eventStreams: updatedStreams });
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+      path: tenantRef.path,
+      operation: 'update',
+      requestResourceData: {
+        'eventStreams[?(@.id==...)]': { status: status },
+      },
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw permissionError;
+  }
+}
+
 
 /**
  * Deletes a specific event stream from a tenant's list.
@@ -178,15 +222,13 @@ export async function deleteEventStream(
     const tenantData = tenantSnap.data() as Tenant;
     const currentStreams = tenantData.eventStreams || [];
 
-    const streamToRemove = currentStreams.find(
-      (stream) => stream.id === streamId
+    const updatedStreams = currentStreams.filter(
+      (stream) => stream.id !== streamId
     );
-
-    if (streamToRemove) {
-      await updateDoc(tenantRef, {
-        eventStreams: arrayRemove(streamToRemove),
-      });
-    }
+    
+    await updateDoc(tenantRef, {
+        eventStreams: updatedStreams,
+    });
 
   } catch (serverError) {
     const permissionError = new FirestorePermissionError({

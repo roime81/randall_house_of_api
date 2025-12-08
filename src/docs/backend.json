@@ -186,8 +186,10 @@
         "status": {
           "type": "string",
           "enum": [
-            "active",
-            "inactive"
+            "running",
+            "stopped",
+            "processing",
+            "error"
           ]
         }
       }
