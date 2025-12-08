@@ -54,7 +54,7 @@ export default function DashboardPage() {
       {!isLoading && tenants && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {tenants.map(tenant => (
-            <TenantCard key={tenant.id} tenant={tenant} />
+            <TenantCard key={tenant.id} tenant={tenant} userProfile={profile} />
           ))}
         </div>
       )}

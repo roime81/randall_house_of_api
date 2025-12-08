@@ -4,6 +4,8 @@ import {
   Firestore,
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   serverTimestamp,
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -29,5 +31,19 @@ export async function addTenant(
     });
     errorEmitter.emit('permission-error', permissionError);
     throw permissionError; // Re-throw to be caught by the calling function
+  }
+}
+
+export async function deleteTenant(firestore: Firestore, tenantId: string) {
+  const tenantRef = doc(firestore, 'tenants', tenantId);
+  try {
+    await deleteDoc(tenantRef);
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+      path: tenantRef.path,
+      operation: 'delete',
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    throw permissionError;
   }
 }
