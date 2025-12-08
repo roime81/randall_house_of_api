@@ -51,6 +51,8 @@ export async function addApiServer(
 
 /**
  * Updates the status of a specific API server within a tenant document.
+ * This function reads the document, modifies the array in memory,
+ * and then overwrites the array in Firestore to avoid race conditions.
  */
 export async function updateApiServerStatus(
   firestore: Firestore,
@@ -77,8 +79,7 @@ export async function updateApiServerStatus(
     const permissionError = new FirestorePermissionError({
       path: tenantRef.path,
       operation: 'update',
-      // We can't provide the exact update payload here easily,
-      // but we can describe the intent.
+      // Provide a representation of the intended update for debugging.
       requestResourceData: {
         'apiServers[?(@.id==...)]': { status: status },
       },
@@ -87,6 +88,7 @@ export async function updateApiServerStatus(
     throw permissionError;
   }
 }
+
 
 /**
  * Deletes a specific API server from a tenant's list of servers.
