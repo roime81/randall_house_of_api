@@ -57,7 +57,9 @@ const statusColor: { [key in ApiServer['status']]: string } = {
 };
 
 export default function ApiServers({ tenant }: ApiServersProps) {
-  const [serverToDelete, setServerToDelete] = React.useState<ApiServer | null>(null);
+  const [serverToDelete, setServerToDelete] = React.useState<ApiServer | null>(
+    null
+  );
   const { toast } = useToast();
   const firestore = useFirestore();
 
@@ -71,7 +73,12 @@ export default function ApiServers({ tenant }: ApiServersProps) {
       switch (action) {
         case 'restart':
           // Simulate restart by showing deploying and then running
-          await updateApiServerStatus(firestore, tenant.id, server.id, 'deploying');
+          await updateApiServerStatus(
+            firestore,
+            tenant.id,
+            server.id,
+            'deploying'
+          );
           setTimeout(() => {
             updateApiServerStatus(firestore, tenant.id, server.id, 'running');
           }, 3000);
@@ -83,7 +90,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
           await updateApiServerStatus(firestore, tenant.id, server.id, 'running');
           break;
         case 'delete':
-           if (server.status !== 'stopped') {
+          if (server.status !== 'stopped') {
             toast({
               variant: 'destructive',
               title: 'Delete Failed',
@@ -95,7 +102,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
           break;
       }
     } catch (error) {
-       toast({
+      toast({
         variant: 'destructive',
         title: 'Action Failed',
         description: `Could not perform action on "${server.name}". Please try again.`,
@@ -103,26 +110,26 @@ export default function ApiServers({ tenant }: ApiServersProps) {
     }
   };
 
-  const executeDelete = async () => {
-    if (!firestore || !serverToDelete || !tenant.id) return;
+  const executeDelete = async (server: ApiServer) => {
+    if (!firestore || !tenant.id) return;
 
     try {
-      await deleteApiServer(firestore, tenant.id, serverToDelete.id);
+      await deleteApiServer(firestore, tenant.id, server.id);
       toast({
         title: 'Server Deleted',
-        description: `Server "${serverToDelete.name}" has been permanently deleted.`,
+        description: `Server "${server.name}" has been permanently deleted.`,
       });
     } catch (error) {
-       toast({
+      toast({
         variant: 'destructive',
         title: 'Delete Failed',
-        description: `Could not delete server "${serverToDelete.name}".`,
+        description: `Could not delete server "${server.name}".`,
       });
     } finally {
       setServerToDelete(null);
     }
   };
-  
+
   const servers = tenant.apiServers || [];
 
   return (
@@ -183,9 +190,12 @@ export default function ApiServers({ tenant }: ApiServersProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                         <DropdownMenuItem
+                        <DropdownMenuItem
                           onClick={() => handleAction('restart', server)}
-                          disabled={server.status === 'deploying' || server.status === 'stopped'}
+                          disabled={
+                            server.status === 'deploying' ||
+                            server.status === 'stopped'
+                          }
                         >
                           Restart
                         </DropdownMenuItem>
@@ -226,7 +236,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
       </Card>
       <AlertDialog
         open={!!serverToDelete}
-        onOpenChange={(open) => !open && setServerToDelete(null)}
+        onOpenChange={open => !open && setServerToDelete(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -243,7 +253,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive hover:bg-destructive/90"
-              onClick={executeDelete}
+              onClick={() => serverToDelete && executeDelete(serverToDelete)}
             >
               Yes, delete server
             </AlertDialogAction>
