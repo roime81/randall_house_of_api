@@ -225,44 +225,48 @@ export default function EventHandling({
                     </p>
                   </div>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Toggle menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => handleAction('restart', stream)}
-                      disabled={
-                        stream.status === 'processing' ||
-                        stream.status === 'stopped' ||
-                        stream.status === 'inactive'
-                      }
-                    >
-                      Restart
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        handleAction(
-                          stream.status === 'running' || stream.status === 'active' ? 'stop' : 'start',
-                          stream
-                        )
-                      }
-                      disabled={stream.status === 'processing'}
-                    >
-                      {stream.status === 'running' || stream.status === 'active' ? 'Stop' : 'Start'}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={() => setStreamToDelete(stream)}
-                      disabled={stream.status !== 'stopped' && stream.status !== 'inactive'}
-                    >
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button aria-haspopup="true" size="icon" variant="ghost">
+                        <MoreHorizontal className="h-4 w-4" />
+                        <span className="sr-only">Toggle menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleAction('restart', stream)}
+                        disabled={
+                          stream.status === 'processing' ||
+                          stream.status === 'stopped' ||
+                          stream.status === 'inactive'
+                        }
+                      >
+                        Restart
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          handleAction(
+                            stream.status === 'running' || stream.status === 'active' ? 'stop' : 'start',
+                            stream
+                          )
+                        }
+                        disabled={stream.status === 'processing'}
+                      >
+                        {stream.status === 'running' || stream.status === 'active' ? 'Stop' : 'Start'}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => setStreamToDelete(stream)}
+                    disabled={stream.status !== 'stopped' && stream.status !== 'inactive'}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span className="sr-only">Delete</span>
+                  </Button>
+                </div>
               </div>
             ))}
             {initialStreams.length === 0 && (
