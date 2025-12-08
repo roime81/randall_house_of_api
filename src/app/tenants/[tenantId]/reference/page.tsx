@@ -2,9 +2,8 @@
 import { notFound, useParams } from 'next/navigation';
 import * as React from 'react';
 import type { Tenant } from '@/lib/types';
-import { useDoc, useFirestore } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { useMemo } from 'react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,14 +23,14 @@ export default function TenantApiReferencePage() {
   const tenantId = params.tenantId as string;
   const firestore = useFirestore();
 
-  const tenantRef = useMemo(() => {
+  const tenantRef = useMemoFirebase(() => {
     if (!firestore || !tenantId) return null;
     return doc(firestore, 'tenants', tenantId);
   }, [firestore, tenantId]);
 
-  const { data: tenant, loading } = useDoc<Tenant>(tenantRef);
+  const { data: tenant, isLoading } = useDoc<Tenant>(tenantRef);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <p>Loading API Details...</p>
@@ -83,7 +82,7 @@ export default function TenantApiReferencePage() {
                     <h3 className="font-semibold text-lg mb-2">API Endpoint</h3>
                     <div className="flex items-center gap-2 rounded-md bg-muted p-3">
                         <code className="text-sm flex-1 font-mono">{tenant.apiGateway.endpoint}</code>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigator.clipboard.writeText(tenant.apiGateway.endpoint)}>
+                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigator.clipboard.writeText(tenant.apiGateway.endpoint)}>
                             <Copy className="h-4 w-4"/>
                         </Button>
                     </div>
@@ -112,7 +111,7 @@ export default function TenantApiReferencePage() {
                         <div className="bg-gray-900 text-white rounded-md p-4">
                         <pre className="text-sm font-mono whitespace-pre-wrap relative">
                             <code>{curlExample}</code>
-                            <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7 text-gray-400 hover:text-white" onClick={() => navigator.clipboard.writeText(curlExample)}>
+                            <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7 text-gray-400 hover:text-white" onClick={() => navigator.clipboard.writeText(curlExample)}>
                                 <Copy className="h-4 w-4" />
                             </Button>
                         </pre>
