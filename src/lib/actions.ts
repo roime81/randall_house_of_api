@@ -5,6 +5,7 @@ import { generateSampleData, GenerateSampleDataInput, GenerateSampleDataOutput }
 import { summarizeTenantData, SummarizeTenantDataInput, SummarizeTenantDataOutput } from '@/ai/flows/summarize-tenant-data';
 import { generateTenantConfig, GenerateTenantConfigInput, GenerateTenantConfigOutput } from '@/ai/flows/generate-tenant-config';
 import { generateBusinessDescription, GenerateBusinessDescriptionInput, GenerateBusinessDescriptionOutput } from '@/ai/flows/generate-business-description';
+import { runApiRequest as runApiRequestFlow, RunApiRequestInput, RunApiRequestOutput } from '@/ai/flows/run-api-request-flow';
 
 
 export async function runGenerateTenantName(input: GenerateTenantNameInput): Promise<GenerateTenantNameOutput> {
@@ -49,5 +50,14 @@ export async function runGenerateBusinessDescription(input: GenerateBusinessDesc
     } catch (error) {
         console.error("Error in runGenerateBusinessDescription:", error);
         throw new Error("Failed to generate business description.");
+    }
+}
+
+export async function runApiRequest(input: RunApiRequestInput): Promise<RunApiRequestOutput> {
+    try {
+        return await runApiRequestFlow(input);
+    } catch (error) {
+        console.error("Error in runApiRequest:", error);
+        throw new Error("Failed to run API request.");
     }
 }

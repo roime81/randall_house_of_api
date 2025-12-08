@@ -6,3 +6,4 @@ import '@/ai/flows/generate-tenant-name.ts';
 import '@/ai/flows/generate-sample-data.ts';
 import '@/ai/flows/generate-tenant-config.ts';
 import '@/ai/flows/generate-business-description.ts';
+import '@/ai/flows/run-api-request-flow.ts';
