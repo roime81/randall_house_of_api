@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { MoreHorizontal, Server } from 'lucide-react';
+import { MoreHorizontal, Server, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,58 +64,46 @@ export default function ApiServers({ tenant }: ApiServersProps) {
   const firestore = useFirestore();
 
   const handleAction = async (
-    action: 'restart' | 'stop' | 'start' | 'delete',
+    action: 'restart' | 'stop' | 'start',
     server: ApiServer
   ) => {
-    if (action === 'delete') {
-      if (server.status !== 'stopped') {
-        toast({
-          variant: 'destructive',
-          title: 'Delete Failed',
-          description: `Server "${server.name}" must be stopped before deletion.`,
-        });
-        return;
+    if (!firestore || !tenant.id) return;
+    try {
+      switch (action) {
+        case 'restart':
+          await updateApiServerStatus(
+            firestore,
+            tenant.id,
+            server.id,
+            'deploying'
+          );
+          setTimeout(() => {
+            updateApiServerStatus(firestore, tenant.id, server.id, 'running');
+          }, 3000);
+          break;
+        case 'stop':
+          await updateApiServerStatus(
+            firestore,
+            tenant.id,
+            server.id,
+            'stopped'
+          );
+          break;
+        case 'start':
+          await updateApiServerStatus(
+            firestore,
+            tenant.id,
+            server.id,
+            'running'
+          );
+          break;
       }
-      setServerToDelete(server);
-    } else {
-      if (!firestore || !tenant.id) return;
-      try {
-        switch (action) {
-          case 'restart':
-            await updateApiServerStatus(
-              firestore,
-              tenant.id,
-              server.id,
-              'deploying'
-            );
-            setTimeout(() => {
-              updateApiServerStatus(firestore, tenant.id, server.id, 'running');
-            }, 3000);
-            break;
-          case 'stop':
-            await updateApiServerStatus(
-              firestore,
-              tenant.id,
-              server.id,
-              'stopped'
-            );
-            break;
-          case 'start':
-            await updateApiServerStatus(
-              firestore,
-              tenant.id,
-              server.id,
-              'running'
-            );
-            break;
-        }
-      } catch (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Action Failed',
-          description: `Could not perform action on "${server.name}". Please try again.`,
-        });
-      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Action Failed',
+        description: `Could not perform action on "${server.name}". Please try again.`,
+      });
     }
   };
 
@@ -190,45 +178,48 @@ export default function ApiServers({ tenant }: ApiServersProps) {
                       addSuffix: true,
                     })}
                   </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleAction('restart', server)}
-                          disabled={
-                            server.status === 'deploying' ||
-                            server.status === 'stopped'
-                          }
-                        >
-                          Restart
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleAction(
-                              server.status === 'running' ? 'stop' : 'start',
-                              server
-                            )
-                          }
-                          disabled={server.status === 'deploying'}
-                        >
-                          {server.status === 'running' ? 'Stop' : 'Start'}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className="text-red-500 focus:bg-red-500/10 focus:text-red-600"
-                          onClick={() => handleAction('delete', server)}
+                  <TableCell className='text-right'>
+                    <div className='flex items-center justify-end gap-2'>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleAction('restart', server)}
+                              disabled={
+                                server.status === 'deploying' ||
+                                server.status === 'stopped'
+                              }
+                            >
+                              Restart
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleAction(
+                                  server.status === 'running' ? 'stop' : 'start',
+                                  server
+                                )
+                              }
+                              disabled={server.status === 'deploying'}
+                            >
+                              {server.status === 'running' ? 'Stop' : 'Start'}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => setServerToDelete(server)}
                           disabled={server.status !== 'stopped'}
                         >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
