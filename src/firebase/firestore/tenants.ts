@@ -6,6 +6,7 @@ import {
   updateDoc,
   arrayUnion,
   getDoc,
+  arrayRemove,
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -177,11 +178,16 @@ export async function deleteEventStream(
     const tenantData = tenantSnap.data() as Tenant;
     const currentStreams = tenantData.eventStreams || [];
 
-    const updatedStreams = currentStreams.filter(stream => stream.id !== streamId);
+    const streamToRemove = currentStreams.find(
+      (stream) => stream.id === streamId
+    );
 
-    await updateDoc(tenantRef, {
-      eventStreams: updatedStreams,
-    });
+    if (streamToRemove) {
+      await updateDoc(tenantRef, {
+        eventStreams: arrayRemove(streamToRemove),
+      });
+    }
+
   } catch (serverError) {
     const permissionError = new FirestorePermissionError({
       path: tenantRef.path,

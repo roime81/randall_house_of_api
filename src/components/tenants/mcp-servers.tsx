@@ -67,51 +67,61 @@ export default function ApiServers({ tenant }: ApiServersProps) {
     action: 'restart' | 'stop' | 'start' | 'delete',
     server: ApiServer
   ) => {
-    if (!firestore || !tenant.id) return;
-
-    try {
-      switch (action) {
-        case 'restart':
-          await updateApiServerStatus(
-            firestore,
-            tenant.id,
-            server.id,
-            'deploying'
-          );
-          setTimeout(() => {
-            updateApiServerStatus(firestore, tenant.id, server.id, 'running');
-          }, 3000);
-          break;
-        case 'stop':
-          await updateApiServerStatus(firestore, tenant.id, server.id, 'stopped');
-          break;
-        case 'start':
-          await updateApiServerStatus(firestore, tenant.id, server.id, 'running');
-          break;
-        case 'delete':
-           if (server.status !== 'stopped') {
-            toast({
-              variant: 'destructive',
-              title: 'Delete Failed',
-              description: `Server "${server.name}" must be stopped before deletion.`,
-            });
-            return;
-          }
-          setServerToDelete(server);
-          break;
+    if (action === 'delete') {
+      if (server.status !== 'stopped') {
+        toast({
+          variant: 'destructive',
+          title: 'Delete Failed',
+          description: `Server "${server.name}" must be stopped before deletion.`,
+        });
+        return;
       }
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Action Failed',
-        description: `Could not perform action on "${server.name}". Please try again.`,
-      });
+      setServerToDelete(server);
+    } else {
+      if (!firestore || !tenant.id) return;
+      try {
+        switch (action) {
+          case 'restart':
+            await updateApiServerStatus(
+              firestore,
+              tenant.id,
+              server.id,
+              'deploying'
+            );
+            setTimeout(() => {
+              updateApiServerStatus(firestore, tenant.id, server.id, 'running');
+            }, 3000);
+            break;
+          case 'stop':
+            await updateApiServerStatus(
+              firestore,
+              tenant.id,
+              server.id,
+              'stopped'
+            );
+            break;
+          case 'start':
+            await updateApiServerStatus(
+              firestore,
+              tenant.id,
+              server.id,
+              'running'
+            );
+            break;
+        }
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Action Failed',
+          description: `Could not perform action on "${server.name}". Please try again.`,
+        });
+      }
     }
   };
 
- const confirmDelete = async () => {
+  const confirmDelete = async () => {
     if (!firestore || !tenant.id || !serverToDelete) return;
-  
+
     try {
       await deleteApiServer(firestore, tenant.id, serverToDelete.id);
       toast({
@@ -189,7 +199,7 @@ export default function ApiServers({ tenant }: ApiServersProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                         <DropdownMenuItem
+                        <DropdownMenuItem
                           onClick={() => handleAction('restart', server)}
                           disabled={
                             server.status === 'deploying' ||
