@@ -51,6 +51,8 @@ type EventHandlingProps = {
 };
 
 const statusColor: { [key in EventStream['status']]: string } = {
+  active: 'bg-green-500',
+  inactive: 'bg-gray-500',
   running: 'bg-green-500',
   stopped: 'bg-gray-500',
   processing: 'bg-yellow-500 animate-pulse',
@@ -213,7 +215,7 @@ export default function EventHandling({
                 <div className="flex items-center gap-3">
                   <div
                     className={`h-2.5 w-2.5 rounded-full ${
-                      statusColor[stream.status]
+                      statusColor[stream.status] || 'bg-gray-400'
                     }`}
                   />
                   <div>
@@ -235,7 +237,8 @@ export default function EventHandling({
                       onClick={() => handleAction('restart', stream)}
                       disabled={
                         stream.status === 'processing' ||
-                        stream.status === 'stopped'
+                        stream.status === 'stopped' ||
+                        stream.status === 'inactive'
                       }
                     >
                       Restart
@@ -243,18 +246,18 @@ export default function EventHandling({
                     <DropdownMenuItem
                       onClick={() =>
                         handleAction(
-                          stream.status === 'running' ? 'stop' : 'start',
+                          stream.status === 'running' || stream.status === 'active' ? 'stop' : 'start',
                           stream
                         )
                       }
                       disabled={stream.status === 'processing'}
                     >
-                      {stream.status === 'running' ? 'Stop' : 'Start'}
+                      {stream.status === 'running' || stream.status === 'active' ? 'Stop' : 'Start'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-destructive"
                       onClick={() => setStreamToDelete(stream)}
-                      disabled={stream.status !== 'stopped'}
+                      disabled={stream.status !== 'stopped' && stream.status !== 'inactive'}
                     >
                       Delete
                     </DropdownMenuItem>
