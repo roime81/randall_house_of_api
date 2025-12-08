@@ -16,6 +16,7 @@ const ApiRouteSchema = z.object({
   path: z.string().describe('The API path, e.g., /users, /rides/book.'),
   method: z.enum(['GET', 'POST', 'PUT', 'DELETE']).describe('The HTTP method.'),
   targetServer: z.string().describe('The ID of the API server that handles this route, e.g., "rh-auth-gcp".'),
+  status: z.enum(['healthy', 'degraded', 'down']).describe('The current health status of the route. Default to "healthy".'),
 });
 
 const ApiServerSchema = z.object({

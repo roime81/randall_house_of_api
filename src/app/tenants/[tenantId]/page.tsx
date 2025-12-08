@@ -43,7 +43,7 @@ export default function TenantDetailPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-2 flex flex-col gap-6">
           <ApiServers tenant={tenant} />
-          <ApiGateway tenantId={tenant.id} gateway={tenant.apiGateway} />
+          <ApiGateway tenantId={tenant.id} gateway={tenant.apiGateway} servers={tenant.apiServers} />
         </div>
         <div className="lg:col-span-1 flex flex-col gap-6">
           <AiSummary tenantId={tenant.id} dataStore={tenant.dataStore} />

@@ -65,6 +65,7 @@ export interface ApiRoute {
   path: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   targetServer: string;
+  status: 'healthy' | 'degraded' | 'down';
 }
 
 export interface EventStream {
