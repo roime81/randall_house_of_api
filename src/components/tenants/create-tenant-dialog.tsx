@@ -131,7 +131,7 @@ export function CreateTenantDialog() {
 
       const { name } = nameResult;
       const { sampleData } = dataResult;
-      const { apiServers, apiGatewayRoutes, eventStreams, upstreamApis } =
+      const { apiGatewayRoutes, eventStreams, upstreamApis } =
         configResult;
 
       const newTenant: Omit<Tenant, 'id'| 'createdAt'> = {
@@ -139,7 +139,7 @@ export function CreateTenantDialog() {
         name,
         description: values.description,
         logoUrl: `https://picsum.photos/seed/${Math.random()}/100/100`,
-        apiServers,
+        apiServers: [],
         apiGateway: {
           endpoint: `https://${name
             .toLowerCase()
